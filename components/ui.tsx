@@ -157,7 +157,16 @@ const badgeColors: Record<string, string> = {
   student: "bg-indigo-100 text-indigo-800",
   teacher: "bg-teal-100 text-teal-800",
   admin: "bg-amber-100 text-amber-800",
+  ai_graded: "bg-violet-100 text-violet-700 ring-1 ring-violet-600/20",
 };
+
+export function AiTag() {
+  return (
+    <span className="inline-flex items-center gap-1 rounded bg-violet-100 px-1.5 py-0.5 text-xs font-medium text-violet-700">
+      AI
+    </span>
+  );
+}
 
 export function Badge({
   kind,

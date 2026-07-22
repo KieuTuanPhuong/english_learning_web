@@ -6,8 +6,8 @@ type S = components["schemas"];
 
 // Resources
 export type User = S["User"];
-export type Role = S["RoleEnum"]; // "student" | "teacher" | "admin"
-export type UserStatus = S["StatusEnum"]; // "active" | "suspended" | "inactive"
+export type Role = S["UserRoleEnum"]; // "student" | "teacher" | "admin"
+export type UserStatus = S["Status36eEnum"]; // "active" | "suspended" | "inactive"
 export type Class = S["Class"];
 export type ClassStudent = S["ClassStudent"];
 export type LearningModule = S["LearningModule"];
@@ -35,3 +35,25 @@ export type AssignmentRequest = S["AssignmentRequest"];
 export type EnrollRequest = S["EnrollRequest"];
 export type ProgressUpsertRequest = S["ProgressUpsertRequest"];
 export type UserUpdateRequest = S["UserUpdateRequest"];
+
+// --- ILLMS upgrade ---
+export type SubmissionStatus = S["StatusD4fEnum"]; // "pending" | "graded" | "ai_graded"
+export type StudyMaterial = S["StudyMaterial"];
+export type StudyMaterialRequest = S["StudyMaterialRequest"];
+export type SubmissionInbox = S["SubmissionInbox"];
+export type AiPracticeRequest = S["AiPracticeRequest"];
+
+export type DashboardEnvelope = { role: Role; generated_at: string; data: unknown };
+export type StudentDashboard = {
+  due_assignments: Assignment[];
+  in_progress_modules: Progress[];
+  recent_feedback: Feedback[];
+};
+export type TeacherDashboard = {
+  class_count: number;
+  enrolled_student_count: number;
+  ungraded_submission_count: number;
+  classes: Class[];
+  recent_ungraded: Submission[];
+};
+

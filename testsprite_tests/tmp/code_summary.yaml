@@ -1,0 +1,118 @@
+version: "2"
+type: frontend
+tech_stack:
+  - TypeScript
+  - Next.js
+  - Tailwind CSS
+  - React
+  - TanStack Query
+routes:
+  - path: /login
+    file: app/(auth)/login/page.tsx
+    auth_required: false
+    description: User login page
+  - path: /register
+    file: app/(auth)/register/page.tsx
+    auth_required: false
+    description: User registration page
+  - path: /dashboard
+    file: app/(app)/dashboard/page.tsx
+    auth_required: true
+    description: Dashboard displaying student/teacher activities
+  - path: /modules
+    file: app/(app)/modules/page.tsx
+    auth_required: true
+    description: Modules list page
+  - path: /modules/[id]
+    file: app/(app)/modules/[id]/page.tsx
+    auth_required: true
+    description: Single module page showing module exercises and details
+  - path: /exercises/[id]
+    file: app/(app)/exercises/[id]/page.tsx
+    auth_required: true
+    description: Exercise solving page
+  - path: /classes
+    file: app/(app)/classes/page.tsx
+    auth_required: true
+    description: List of classes
+  - path: /classes/[id]
+    file: app/(app)/classes/[id]/page.tsx
+    auth_required: true
+    description: Class syllabus, assignments, and lesson plans details
+  - path: /submissions
+    file: app/(app)/submissions/page.tsx
+    auth_required: true
+    description: Listing of submissions
+  - path: /submissions/[id]
+    file: app/(app)/submissions/[id]/page.tsx
+    auth_required: true
+    description: Detailed view of a single submission
+  - path: /profile
+    file: app/(app)/profile/page.tsx
+    auth_required: true
+    description: User profile page
+features:
+  - name: User Login
+    description: Log in using email and password credentials
+    files:
+      - app/(auth)/login/page.tsx
+      - lib/auth-context.tsx
+    entry_route: /login
+    user_interactions:
+      - Fill email input field
+      - Fill password input field
+      - Click Log in button
+    api_calls:
+      - method: POST
+        endpoint: /api/auth/token/
+    auth_required: false
+  - name: User Registration
+    description: Sign up for a new account
+    files:
+      - app/(auth)/register/page.tsx
+      - lib/auth-context.tsx
+    entry_route: /register
+    user_interactions:
+      - Fill Full Name input field
+      - Fill Email input field
+      - Fill Password input field
+      - Select user role
+      - Click Create account button
+    api_calls:
+      - method: POST
+        endpoint: /api/users/
+    auth_required: false
+  - name: Student Dashboard
+    description: View assignments due soon, modules in progress, and recent submissions
+    files:
+      - app/(app)/dashboard/page.tsx
+    entry_route: /dashboard
+    user_interactions:
+      - View due assignments list
+      - View modules progress list
+      - View recent submissions
+      - Click link to navigate to a class, module, or submission
+    api_calls:
+      - method: GET
+        endpoint: /api/classes/
+      - method: GET
+        endpoint: /api/submissions/
+      - method: GET
+        endpoint: /api/progress/
+    auth_required: true
+  - name: Exercise Completion
+    description: Do and submit exercises
+    files:
+      - app/(app)/exercises/[id]/page.tsx
+    entry_route: /exercises/[id]
+    user_interactions:
+      - View instruction text
+      - Type answer in text area or record speaking voice
+      - Click Submit button
+    api_calls:
+      - method: GET
+        endpoint: /api/exercises/[id]/
+      - method: POST
+        endpoint: /api/submissions/
+    auth_required: true
+known_limitations: []

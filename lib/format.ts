@@ -37,3 +37,9 @@ export function timeAgo(value: string | null | undefined): string {
     ? ""
     : formatDistanceToNow(d, { addSuffix: true });
 }
+
+export function submissionStatusLabel(s: string): string {
+  const map: Record<string, string> = { pending: "Pending", graded: "Graded", ai_graded: "AI graded" };
+  return map[s] ?? s;
+}
+

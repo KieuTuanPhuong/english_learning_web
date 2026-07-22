@@ -1,0 +1,850 @@
+[
+  {
+    "id": "TC001",
+    "title": "Register a new student account and reach the dashboard",
+    "description": "This verifies that a new student can create an account, authenticate, and arrive at the dashboard with access to the app shell.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /register"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the full name field with a new student name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with a new student email"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with a valid password"
+      },
+      {
+        "type": "action",
+        "description": "Select the student role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user lands on the dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify authenticated navigation is available across the app"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Log in as an existing student and reach the dashboard",
+    "description": "This verifies that a returning student can log in successfully and access the authenticated dashboard.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user lands on the dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify authenticated navigation is available across the app"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Block access to protected pages when signed out",
+    "description": "This verifies that an unauthenticated visitor is redirected away from protected student pages and cannot stay on the dashboard.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is redirected to the login page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify protected content is not displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Submit a completed writing exercise and review the submission in history",
+    "description": "This test verifies that a student can complete a writing exercise, submit it, and see the new submission in the history with awaiting review status.",
+    "category": "Exercises",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the student login field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /modules"
+      },
+      {
+        "type": "action",
+        "description": "Open a module"
+      },
+      {
+        "type": "action",
+        "description": "Open a writing exercise from the module"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a complete written response"
+      },
+      {
+        "type": "action",
+        "description": "Submit the exercise"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /submissions"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new submission is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the submission is marked as awaiting review"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Log out and return to the login page",
+    "description": "This verifies that a signed-in student can end their session and is returned to the login page afterward.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Trigger the sign-out action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is returned to the login page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify authenticated navigation is no longer available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Log out and return to the login screen",
+    "description": "This test verifies that a student can log out from the profile page and is returned to the login screen.",
+    "category": "Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Log out of the account"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is signed out"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Submit a writing exercise and see it in submissions",
+    "description": "This verifies that a student can complete a writing exercise, submit it, and find the submission in the submissions list with an awaiting-review status.",
+    "category": "Submissions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open a writing exercise from a module"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the writing response field with a complete answer"
+      },
+      {
+        "type": "action",
+        "description": "Submit the exercise response"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /submissions"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new submission is listed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify awaiting-review status is shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Start a writing exercise from a module",
+    "description": "This test verifies that a student can open an exercise from a module and reach the exercise page with the instructions visible.",
+    "category": "Exercises",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the student login field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /modules"
+      },
+      {
+        "type": "action",
+        "description": "Open a module"
+      },
+      {
+        "type": "action",
+        "description": "Open a writing exercise from the module"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the exercise instructions are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Open a module from the module catalog and launch an exercise",
+    "description": "This verifies that a student can browse modules, open a module detail page, and start an exercise from that module.",
+    "category": "Modules",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /modules"
+      },
+      {
+        "type": "action",
+        "description": "Open a module from the module list"
+      },
+      {
+        "type": "action",
+        "description": "Launch an exercise from the module"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the exercise page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the exercise prompt is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Browse enrolled classes and open a class detail page",
+    "description": "This verifies that a logged-in student can view their enrolled classes list and open a class to inspect its details.",
+    "category": "Classes",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classes"
+      },
+      {
+        "type": "action",
+        "description": "Open a class from the enrolled classes list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify class details are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify assignments, lesson plans, and roster information are available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Browse and open a module from the module list",
+    "description": "This test verifies that a student can search and filter modules, identify a matching module, and open its detail page with exercises.",
+    "category": "Modules",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the student login field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /modules"
+      },
+      {
+        "type": "action",
+        "description": "Search for a module by title"
+      },
+      {
+        "type": "action",
+        "description": "Filter modules by difficulty"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching modules are displayed"
+      },
+      {
+        "type": "action",
+        "description": "Open a module"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the module overview and exercise list are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Review graded submission feedback and original response",
+    "description": "This verifies that a student can reopen a graded submission and review the score, teacher feedback, prompt, and submitted answer.",
+    "category": "Submissions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /submissions"
+      },
+      {
+        "type": "action",
+        "description": "Open a graded submission from the submissions list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the submission detail view is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify score, teacher feedback, prompt, and original answer are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Open a module from the list without filtering",
+    "description": "This test verifies that a student can view the module list and open a module to inspect its details and exercises.",
+    "category": "Modules",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the student login field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /modules"
+      },
+      {
+        "type": "action",
+        "description": "View the module list"
+      },
+      {
+        "type": "action",
+        "description": "Open a module"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the module overview is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the exercise list is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Review graded submission details",
+    "description": "This test verifies that a student can open a graded submission and see the score, teacher feedback, and original work.",
+    "category": "Submissions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the student login field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /submissions"
+      },
+      {
+        "type": "action",
+        "description": "Open a graded submission"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the score is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the teacher feedback and original submission are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Update profile details and log out",
+    "description": "This test verifies that a student can edit profile details, see the updated name and avatar in the app shell, and return to the login screen after logging out.",
+    "category": "Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the student login field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Update the profile name"
+      },
+      {
+        "type": "action",
+        "description": "Update the avatar URL"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile details are reflected in the app shell"
+      },
+      {
+        "type": "action",
+        "description": "Log out"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login screen is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC016",
+    "title": "Update profile details and see them reflected in the app shell",
+    "description": "This verifies that a student can edit their profile name and avatar URL, save the changes, and see the updated profile information reflected in the app shell.",
+    "category": "Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Update the profile name"
+      },
+      {
+        "type": "action",
+        "description": "Update the avatar URL"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile information is shown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated name and avatar are reflected in the app shell"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC017",
+    "title": "Filter submissions by status",
+    "description": "This test verifies that a student can filter submission history to view awaiting review or graded items.",
+    "category": "Submissions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the student login field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /submissions"
+      },
+      {
+        "type": "action",
+        "description": "Filter submissions by awaiting review"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify awaiting review submissions are displayed"
+      },
+      {
+        "type": "action",
+        "description": "Filter submissions by graded"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify graded submissions are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC018",
+    "title": "Handle an empty classes list by linking to the module catalog",
+    "description": "This verifies that a student with no enrolled classes sees an empty state and can move on to browse the module catalog.",
+    "category": "Classes",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a link to the module catalog is available"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC019",
+    "title": "Show validation feedback for an incomplete exercise response",
+    "description": "This test verifies that submitting an incomplete writing exercise shows validation feedback and does not create a submission.",
+    "category": "Exercises",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the student login field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /modules"
+      },
+      {
+        "type": "action",
+        "description": "Open a module"
+      },
+      {
+        "type": "action",
+        "description": "Open a writing exercise from the module"
+      },
+      {
+        "type": "action",
+        "description": "Submit the exercise without entering a response"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation feedback is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the submission is not created"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC020",
+    "title": "Handle an empty submissions history",
+    "description": "This test verifies that a student with no submissions sees an empty state on the submissions page.",
+    "category": "Submissions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the student login field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /submissions"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is displayed"
+      }
+    ],
+    "priority": "Low"
+  }
+]

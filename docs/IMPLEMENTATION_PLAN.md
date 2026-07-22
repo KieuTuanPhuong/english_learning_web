@@ -1,0 +1,325 @@
+# English Learning Web — Implementation Plan
+
+> Frontend for the English-learning platform. Next.js 16 (App Router) client SPA consuming the
+> Django REST + SimpleJWT API at `http://127.0.0.1:8000`.
+>
+> **Source of truth:** wireframes in [design/](../design/) (low-fi, layout/IA only) and the live OpenAPI
+> schema at `http://127.0.0.1:8000/api/schema/` (authoritative for field names & contracts).
+
+---
+
+## 1. Decisions (locked)
+
+| Area | Decision | Consequence |
+|---|---|---|
+| Deliverable | Plan + build-process docs first, **no app code yet** | This doc + [BUILD_WORKFLOW.md](BUILD_WORKFLOW.md) |
+| Visual fidelity | **Polished UI, keep role accents.** Wireframes drive layout/IA only. Drop the Caveat/sketch aesthetic. | Keep indigo/teal/amber accents + nav patterns; build a clean modern component set |
+| MVP scope | **Student + Teacher.** Admin deferred (it is a superset of teacher). | Build 16 student/shared screens + 12 teacher screens. Admin (25–29) = later milestone |
+| Data layer | **Client SPA + TanStack Query.** JWT in the browser, calls Django directly. | No Next server data layer / route-handler proxy. All fetching in `'use client'` components |
+
+---
+
+## 2. Tech stack
+
+| Concern | Choice | Why |
+|---|---|---|
+| Framework | Next.js **16.2.7** (App Router) + React **19.2.4** | Pinned. **Read `node_modules/next/dist/docs/` before coding** — this version has breaking changes (see §8). |
+| Language | TypeScript 5 (strict) | Already configured |
+| Styling | **Tailwind v4** (in-CSS `@theme`, already wired via `@tailwindcss/postcss`) | No `tailwind.config.js`; define tokens in [globals.css](../app/globals.css) |
+| Server state | **TanStack Query v5** (`@tanstack/react-query`) | Caching, refetch, mutations, optimistic grading. *Not installed yet — add it.* |
+| API types | **`openapi-typescript`** generates types from `/api/schema/` | Turns the whole "verify field names" risk (§9) into compile-time safety |
+| API client | Thin `fetch` wrapper (+ optional `openapi-fetch`) | One place for base URL, auth header, 401→refresh, error normalization |
+| Forms | `react-hook-form` + `zod` | Login/register/grading/editor forms with validation |
+| Icons | `lucide-react` | Clean line icons matching the polished direction |
+| Dates | `date-fns` | Due dates, "Tomorrow"/"2h ago" labels |
+
+> Do **not** add a custom webpack config — Turbopack is the default builder in v16 and a webpack config
+> fails `next build`. Configure bundler tweaks under the top-level `turbopack` key in `next.config.ts`.
+
+---
+
+## 3. Architecture overview
+
+```
+Browser (Next.js client SPA)
+  ├─ app/ (App Router)            URL routing, role-aware layouts
+  ├─ components/ui/               polished design system (from wireframe primitives)
+  ├─ components/layout/           MobileShell (student) · DesktopShell (teacher) · RoleTheme
+  ├─ lib/api/                     fetch client + auth + typed endpoint fns
+  ├─ lib/hooks/                   TanStack Query hooks (one per resource/action)
+  └─ lib/types/                   generated from OpenAPI schema
+        │  Authorization: Bearer <access>
+        ▼
+Django REST API  http://127.0.0.1:8000/api/   (SimpleJWT, snake_case, flat *_id FKs)
+```
+
+Principles:
+- **Server state lives in TanStack Query**, keyed by resource. No global Redux/Zustand for server data.
+- **Client state** (auth tokens, active role, theme) in a small React Context (`'use client'`).
+- **Flat FKs → client-side joins.** The API returns integer `*_id` fields, *not* nested objects (except
+  `Exercise.questions[].options[]`). Composite screens fan out multiple queries and join in the hook.
+- **Role decides chrome, not routes.** Shared URLs (`/dashboard`, `/classes`) render role-specific views.
+
+### Proposed folder structure
+
+```
+app/
+  layout.tsx                 root: <html><body>, fonts, globals.css, <Providers>
+  providers.tsx              'use client': QueryClientProvider + AuthProvider + RoleThemeProvider
+  page.tsx                   redirect → /dashboard (authed) or /login
+  (auth)/                    route group — no app shell
+    login/page.tsx           S1
+    register/page.tsx        S2
+  (app)/                     route group — authed shell + guard
+    layout.tsx               'use client' guard; renders MobileShell or DesktopShell by role
+    dashboard/page.tsx       S5 (student) | T13 (teacher)
+    classes/page.tsx         S6 | T14
+    classes/[id]/page.tsx    S7 | T15  (await params!)
+    modules/page.tsx         S8 | T19
+    modules/[id]/page.tsx    S9 | T20
+    modules/[id]/exercises/page.tsx   T21 (teacher)
+    exercises/[id]/page.tsx  S10 / S10v_* (student exercise viewer)
+    submissions/page.tsx     S11 | T23 (inbox)
+    submissions/[id]/page.tsx          S12 (student) | T24 (grading)
+    profile/page.tsx         S3
+lib/
+  api/client.ts  api/auth.ts  api/endpoints/*.ts
+  hooks/use-me.ts  hooks/use-classes.ts  hooks/use-submissions.ts ...
+  types/api.d.ts             generated by openapi-typescript
+components/
+  ui/{button,card,badge,field,avatar,tabs,progress-bar,skeleton,modal,toast}.tsx
+  layout/{mobile-shell,desktop-shell,role-theme,nav}.tsx
+```
+
+> `(auth)` and `(app)` are **route groups** — parentheses keep them out of the URL.
+> Colocate non-route helpers in `_folders` or under `lib/`/`components/` so they never become routes.
+
+---
+
+## 4. API contract (authoritative — from `/api/schema/`)
+
+Base: `http://127.0.0.1:8000/api/` · Auth: `Authorization: Bearer <access>` · Fields: **snake_case**.
+
+### Resources (real field names)
+
+| Resource | Key fields |
+|---|---|
+| **User** | `id, email, full_name, avatar_url?, role{student\|teacher\|admin}, status{active\|suspended\|inactive}, created_at`. `password` is write-only (register only). |
+| **Class** | `id, class_name, teacher_id?, academic_year?, created_at`. FK is flat `teacher_id`. |
+| **ClassStudent** | `id, class_id, student_id, joined_at` (enrollment join row; returned from POST enroll). |
+| **LearningModule** | `id, title, description?, difficulty_level{beginner\|intermediate\|advanced}?, created_by, created_at`. |
+| **Exercise** | `id, module_id?, title, exercise_type{writing\|speaking\|reading\|listening\|quiz}, prompt_text, audio_prompt_url?, questions[]` (nested, read-only). |
+| **Question / QuestionOption** | nested under Exercise. `QuestionOption.is_correct` is present — ⚠ may leak the answer key to students (§9). |
+| **Submission** | `id, exercise_id, assignment_id?, submission_type, writing_text?, audio_recording_url?, answers?(JSON), auto_score?(readOnly), student_id, submitted_at`. |
+| **Feedback** | `id, submission_id, reviewer_id, score?(decimal string), comments?, created_at`. |
+| **Progress** | `id, student_id, module_id, completion_percentage(decimal string), last_accessed_at?`. |
+| **LessonPlan** | `id, class_id, title, objectives?, start_date?(date), end_date?(date), created_at`. |
+| **Assignment** | `id, class_id, exercise_id?, assigned_by, due_date?(datetime), created_at`. |
+
+> **Decimals (`score`, `auto_score`, `completion_percentage`) are JSON strings**, not numbers — parse/format in the client.
+> **Dates:** `LessonPlan.start/end_date` are date-only; `Assignment.due_date` is datetime — don't conflate in pickers.
+
+### Endpoint map (used by MVP)
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/auth/register` | Create account `{email,password,full_name,role,avatar_url?}` → 201 User (no token) |
+| POST | `/api/auth/login` | `{email,password}` → `{access_token, refresh_token, token_type:"bearer"}` |
+| POST | `/api/auth/token` | SimpleJWT `{email,password}` → `{access, refresh}` *(different field names!)* |
+| POST | `/api/auth/token/refresh` | `{refresh}` → `{access}` |
+| GET/PUT/PATCH | `/api/users/me/` | own profile; `status` writable by admin only |
+| GET | `/api/users/` , `/api/users/{id}/` | user search/detail (teacher enroll, admin) |
+| GET/POST | `/api/classes/` ; GET/PATCH/DELETE `/api/classes/{id}/` | classes CRUD |
+| GET/POST | `/api/classes/{id}/assignments/` | list/create assignments |
+| GET/POST | `/api/classes/{id}/lesson-plans/` | list/create lesson plans |
+| GET/POST | `/api/classes/{id}/students/` ; DELETE `.../{student_id}/` | roster: list/enroll/remove |
+| GET/POST | `/api/modules/` ; GET/PATCH/DELETE `/api/modules/{id}/` | modules CRUD |
+| GET/POST | `/api/modules/{id}/exercises/` | list/create exercises in a module |
+| GET/DELETE | `/api/exercises/{id}/` | exercise detail (nested questions) / delete |
+| GET | `/api/exercises/{id}/submissions/` | submissions for an exercise (teacher) — **the only teacher submission-list path** |
+| **POST** | `/api/submissions/` | create submission (body has `exercise_id`). ✅ verified — nested `/exercises/{id}/submissions/` POST → 405 |
+| GET | `/api/submissions/me/` | student's own. ⚠ top-level `GET /api/submissions/` → **405** (no teacher-wide list) |
+| GET | `/api/submissions/{id}/feedback/` | feedback on a submission |
+| **POST** | `/api/feedback/` | create feedback (body has `submission_id`). ✅ verified — nested `/submissions/{id}/feedback/` POST → 405 |
+| GET | `/api/progress/me/` | student's own. ⚠ top-level `GET /api/progress/` → **405**. POST `/api/progress/` upserts |
+
+> ✅ **Verified live:** lists are **bare JSON arrays** (no `{count,next,previous,results}` envelope) — confirmed
+> against authed `GET /classes/` and `/modules/`. List handling stays simple.
+
+### Auth flow (pick ONE, normalize)
+
+Use **`/api/auth/login`** (returns `access_token`/`refresh_token`). The auth client must:
+1. `register` → then `login` (register returns no token).
+2. Store `access` in memory + `refresh` in a secure place (see §6).
+3. Send `Authorization: Bearer <access>` on every `/api/` call.
+4. On **401**: attempt one `POST /api/auth/token/refresh {refresh}`; success → retry; failure → clear tokens → `/login`.
+5. On **403**: do **not** refresh — it's a permission/suspension error (`{detail}` shape), surface it.
+
+> ⚠ **Field-name trap:** `/auth/login` returns `refresh_token` but `/auth/token/refresh` expects `refresh`.
+> Remap in one normalizer in `lib/api/auth.ts`. Error shapes: `400 {field:[msgs]}` (validation) vs
+> `401/403/404 {detail: string}`.
+
+---
+
+## 5. Screen inventory → API mapping
+
+### Shared (4) — mobile, neutral chrome until role known
+
+| ID | Screen | Primary endpoints | Notes |
+|---|---|---|---|
+| S1 | Login | `POST /auth/login` → `GET /users/me/` | Neutral theme; fetch `me` post-login to set role accent + route |
+| S2 | Register | `POST /auth/register` → `POST /auth/login` → `GET /users/me/` | Role select **student\|teacher only** (admin not self-serve) |
+| S3 | Profile | `GET/PATCH /users/me/` | Avatar = URL paste (no upload yet) |
+| S4 | Logout | client-side token discard | No logout endpoint; warns drafts are local |
+
+### Student (12) — mobile, **indigo**, bottom tab bar `Home·Classes·Modules·Submissions·Me`
+
+| ID | Screen | Endpoints | Notes |
+|---|---|---|---|
+| S5 | Dashboard | `GET /users/me/`, `GET /classes/` → fan-out `GET /classes/{id}/assignments/`, `GET /progress/me/`, `GET /submissions/me/` | **No "due soon" endpoint** — assemble client-side from per-class assignments (§9) |
+| S6 | My Classes | `GET /classes/` (+ per-class assignment count) | "N due" badge derived |
+| S7 | Class Detail | `GET /classes/{id}/`, `/assignments/`, `/lesson-plans/`, `/students/` | Tabs: Assignments·Lesson plans·Roster |
+| S8 | Module Catalog | `GET /modules/`, `GET /progress/me/` | Search + difficulty filter (confirm query params) |
+| S9 | Module Detail | `GET /modules/{id}/`, `/exercises/`, `GET /progress/me/` | Ordered exercises + done/current |
+| S10 | Exercise Viewer (writing) | `GET /exercises/{id}/`, `POST submission` | Word count; "Save draft" = **local** (no draft endpoint) |
+| S10v | Exercise Viewer (speaking) | `GET /exercises/{id}/`, `POST submission` | Response = audio URL paste |
+| S11 | My Submissions | `GET /submissions/me/`, `GET feedback` | Filter All·Graded·Awaiting |
+| S12 | Submission Detail | `GET /submissions/{id}/feedback/`, `GET /exercises/{id}/` | Answer + teacher score/comment |
+
+> Tab bar is **hidden** on focus screens: S1, S2, S4, all S10*, S12.
+
+### Teacher (12) — desktop, **teal**, sidebar `Dashboard·My Classes·Modules·Submissions·Profile`
+
+| ID | Screen | Endpoints | Notes |
+|---|---|---|---|
+| T13 | Dashboard | `GET /users/me/`, `/classes/`, `/modules/`, `/submissions/` | **No stats endpoint** — KPI tiles are derived counts (§9) |
+| T14 | My Classes | `GET/POST /classes/`, `PATCH /classes/{id}/` | Create / rename / archive (archive = status flag, not DELETE) |
+| T15 | Class Detail | `GET /classes/{id}/` + `/students/`, `/assignments/`, `/lesson-plans/`; `DELETE .../students/{id}/` | Roster·Plans·Assignments tabs |
+| T16 | Create/Edit Class | `POST /classes/`, `PATCH /classes/{id}/` | Auto join code (confirm field) |
+| T17 | Enroll Students | `GET /users/` (role=student), `GET /classes/{id}/students/`, `POST /classes/{id}/students/` | Search → stage → bulk enroll |
+| T18 | Lesson Plan Editor | `GET/POST /classes/{id}/lesson-plans/`, `GET /modules/{id}/exercises/` | Link exercises (no auto-assign) |
+| T19 | My Modules | `GET/POST /modules/`, `DELETE /modules/{id}/` | Cards + create tile |
+| T20 | Module Editor (Overview) | `GET/PATCH/DELETE /modules/{id}/` | Title/desc/difficulty + stats |
+| T21 | Module Editor (Exercises) | `GET/POST /modules/{id}/exercises/`, `GET/PATCH /exercises/{id}/` | Reorder + add/edit exercise |
+| T22 | Assignment Creator | `GET /modules/`, `/modules/{id}/exercises/`, `/classes/`, `POST /classes/{id}/assignments/` | Pick exercise → class → due date |
+| T23 | Submissions Inbox | `GET /submissions/` (status/class/type filters), `GET /classes/` | Master grading queue |
+| T24 | Grading Screen | `GET /submissions/`, `GET /exercises/{id}/`, `GET/POST feedback` | Score + comments; "Save & next" loop |
+
+### Critical journeys (acceptance paths)
+- **J1 — student submits writing:** login → dashboard (due card) → exercise → type → submit → toast → dashboard shows ✓.
+- **J3 — teacher creates & assigns:** login → modules → create module → add exercise → class → assign (exercise+class+due).
+- **J4 — teacher batch grades:** dashboard "N ungraded" → inbox (filter ungraded) → grade screen → score+comment → Save & next ×N → queue empty.
+
+---
+
+## 6. Auth & token storage (client SPA)
+
+- **Access token:** in-memory (React state/Context) — lost on refresh, re-derived from refresh token.
+- **Refresh token:** `localStorage` for MVP simplicity (documented XSS trade-off), or a non-httpOnly cookie.
+  *(httpOnly cookies would need the route-handler proxy we explicitly opted out of.)*
+- On app boot: if a refresh token exists → `POST /auth/token/refresh` → hydrate access → `GET /users/me/`.
+- `AuthProvider` exposes `{ user, role, login, register, logout, isLoading }`. `(app)/layout.tsx` guards:
+  no user → redirect `/login`.
+- **RoleTheme:** `data-role` on a wrapper swaps `--color-accent` (indigo/teal/amber) → all accent utilities follow.
+
+---
+
+## 7. Design system (polished, from wireframe primitives)
+
+Translate [primitives.jsx](../design/wireframes/primitives.jsx) into clean Tailwind components. **Keep** the
+structure and role accents; **drop** Caveat fonts, sketchy borders, paper texture.
+
+| Wireframe primitive | Production component | Notes |
+|---|---|---|
+| `WBtn` (primary/ghost/danger/sm) | `Button` variants | accent fill = role color |
+| `WBox` (filled/dashed/accentBg) | `Card` | accentBg → subtle role tint |
+| `WBadge` (writing/speaking/quiz/graded/ungraded/active/suspended/levels) | `Badge` | keep the semantic color map |
+| `WField` | `Field` (label + input/textarea) | wired to react-hook-form |
+| `WAvatar` | `Avatar` | initials fallback |
+| `WNote` | `Annotation`/`Hint` | optional, dev-only |
+| `WMobileFrame` | `MobileShell` | top bar + bottom tab bar |
+| `WDesktopFrame` | `DesktopShell` | top bar + sidebar |
+| `WImg` | `MediaPlaceholder` | until uploads exist |
+| tabs / progress bar / skeleton | `Tabs`, `ProgressBar`, `Skeleton` | every list/detail screen needs loading + empty + error |
+
+**Tokens** (in `@theme` in [globals.css](../app/globals.css)):
+```
+--color-accent-student: oklch(0.55 0.13 270);  /* indigo */
+--color-accent-teacher: oklch(0.58 0.10 195);  /* teal   */
+--color-accent-admin:   oklch(0.72 0.13 75);   /* amber  */
+--color-accent: var(--color-accent-student);   /* swapped by data-role */
+```
+Keep the badge semantic palette (graded/ungraded/levels/status) from the wireframe `BADGE_COLORS`.
+
+---
+
+## 8. Next.js 16 constraints (read the docs before coding)
+
+Per [AGENTS.md](../AGENTS.md), read the relevant guide in `node_modules/next/dist/docs/` first. Key items:
+
+- **Async params:** `params` and `searchParams` are **Promises** in pages/layouts — `await` them. Use global
+  `PageProps<'/route'>` / `LayoutProps<'/route'>` types (run `npx next typegen` if missing).
+- **`'use client'`** as the literal first line, only on interactive entry points (state/effects/handlers,
+  `useRouter`/`usePathname`/`useSearchParams`, Context providers, browser APIs). Our whole SPA is client-heavy.
+- **Navigation hooks from `next/navigation`** (not `next/router`); `<Link>` from `next/link` for prefetch.
+- **`useSearchParams` consumers must be wrapped in `<Suspense>`** (filters, inbox, catalog search).
+- **Env:** `NEXT_PUBLIC_API_URL` read as a literal `process.env.NEXT_PUBLIC_API_URL` (no destructuring/dynamic
+  key or it won't inline). **Build-time frozen** — set before `next build`.
+- **Turbopack is default** for dev & build; **no custom webpack config**.
+- **Tailwind v4:** no `tailwind.config.js`, no `@tailwind` directives — single `@import "tailwindcss"` + `@theme`.
+- `middleware.ts` → renamed `proxy.ts` (not needed for client SPA). `next lint` removed — run ESLint directly.
+
+Relevant docs: `01-getting-started/{02-project-structure,03-layouts-and-pages,05-server-and-client-components,06-fetching-data}.md`,
+`02-guides/{single-page-applications,environment-variables,upgrading/version-16}.md`,
+`03-api-reference/01-directives/use-client.md`.
+
+---
+
+## 9. Open questions / verification checklist
+
+### ✅ Resolved (verified live, 2026-06-08)
+
+1. **Pagination:** lists are **bare arrays** — no envelope. Confirmed via authed `GET /classes/` (`[]`), `GET /modules/` (`[...]`).
+2. **Submission create:** **`POST /api/submissions/`** with `exercise_id` in body → 201. Nested `POST /exercises/{id}/submissions/` → 405.
+3. **Feedback create:** **`POST /api/feedback/`** with `submission_id` in body → 201. Nested `POST /submissions/{id}/feedback/` → 405.
+4. **Top-level lists are POST-only:** `GET /api/submissions/`, `/feedback/`, `/progress/` → **405** (not a teacher list!). Student reads via `/me/` variants; teacher submission access only via `GET /api/exercises/{id}/submissions/`. → **see M2 note below.**
+5. **Role permissions:** enforced. Student `GET /users/` → 403; student `POST /modules/` → 403. Map further boundaries per teacher screen as built.
+6. **Decimals are strings:** `score` came back `"85.00"`. Parse/format in client (already planned).
+
+### 🔴 Backend issues found
+- **Privilege escalation:** `POST /api/auth/register {role:"admin"}` returns **201** — anyone can self-register as admin. FE register UI restricts to student/teacher, but **backend must block this server-side.** Report to backend team.
+
+### ⚠ M2 constraints (verified live 2026-06-08)
+- **No teacher-wide submission list.** `GET /api/submissions/` is 405. Build the teacher grading queue by fanning out: `GET /classes/` → per-class `assignments/` → unique `exercise_id`s → `GET /api/exercises/{id}/submissions/`, then merge. Confirmed `GET /exercises/{id}/submissions/` → 200 `Submission[]`.
+- 🔴 **`GET /api/users/` → 403 for teachers.** No user search/list → the T17 "search students to enrol" flow is impossible as designed. M2 enrols by **direct student-ID entry**; student names in the grading queue resolve only via class rosters (`GET /classes/{id}/students/` → `User[]`). **Backend: add a student-search endpoint (or a class join-code).**
+- 🔴 **`PATCH /api/exercises/{id}/` → 405.** Exercises are create + delete only, **not editable**. T21 module-exercise editor offers Add/Delete, no "Save exercise".
+- ✅ `POST /classes/` auto-sets `teacher_id` to the creator (don't send it). `GET /classes/` is teacher-scoped. Enroll (`POST classes/{id}/students/ {student_id}` → 201 ClassStudent), assignment (`POST classes/{id}/assignments/ {exercise_id,due_date}` → 201), lesson-plan, `POST /modules/`, `PATCH /modules/{id}/`, `POST /modules/{id}/exercises/`, `DELETE`s all confirmed working.
+
+### Still open (resolve when the relevant screen is built)
+7. **Token lifetimes & rotation:** access/refresh TTL, `ROTATE_REFRESH_TOKENS`, `BLACKLIST_AFTER_ROTATION`. (Observed refresh TTL ~7 days, access ~1h from token `exp` — confirm settings.)
+8. **List scoping:** does `GET /classes/` auto-scope (teacher→own, student→enrolled)? New teacher saw `[]` — looks scoped; confirm with enrolled data.
+9. **`QuestionOption.is_correct` leak:** is it stripped for students? (Answer-key exposure — relevant once quiz UI is built.)
+10. **`Submission.answers` JSON shape** for quizzes and how `auto_score` is computed.
+11. **Search/filter params:** module catalog search + difficulty, exercise-submissions filters, user search role filter — confirm exact query-param names.
+12. **Class join code & "archive":** `Class` schema has no `code`/`status` field (only `class_name, teacher_id, academic_year`). Wireframes show a join code + archive — **fields may not exist**; confirm or treat as not-yet-supported.
+13. **Drafts / resubmission:** no draft or PATCH-submission endpoint — "Save draft" stays **local**; resubmission unsupported.
+
+---
+
+## 10. Milestones
+
+> Detailed task order, parallelization, and verification gates are in [BUILD_WORKFLOW.md](BUILD_WORKFLOW.md).
+
+- **M0 — Foundation.** Deps (Query, openapi-typescript, RHF/zod, lucide, date-fns), `.env` + `NEXT_PUBLIC_API_URL`,
+  generated API types, `lib/api` client + auth + refresh interceptor, `Providers`, design-system primitives,
+  app shell (MobileShell/DesktopShell) + role theming + `(app)` guard. **Gate:** login against live API works and
+  `GET /users/me/` drives role accent + nav.
+- **M1 — Student flow.** S1–S12 + S3/S4. **Gate:** **J1** passes end-to-end against the live API; every screen has
+  loading/empty/error states; mobile responsive.
+- **M2 — Teacher flow.** T13–T24. **Gate:** **J3** and **J4** pass end-to-end; grading "Save & next" loop works;
+  desktop layouts.
+- **M3 — Admin (deferred).** Screens 25–29 (dashboard, user management, user detail/edit, all classes, all modules)
+  + **J6** (suspend user). Reuses teacher shell with amber accent + sidebar `Dashboard·Users·Classes·Modules·Logs`.
+
+### Out of scope (MVP)
+File uploads (avatar/audio — URL paste only), password reset, quiz-type exercise UI (not wireframed), realtime/notifications, i18n, the dashboard density/nav *variations* (pick one each: Cards dashboard, sidebar nav).

@@ -14,4 +14,9 @@ export const qk = {
   mySubmissions: ["submissions", "me"] as const,
   submissionFeedback: (id: number) => ["submissions", id, "feedback"] as const,
   myProgress: ["progress", "me"] as const,
+  dashboard: ["dashboard"] as const,
+  submissionsInbox: (f?: { status?: string; class_id?: number; exercise_id?: number }) =>
+    ["submissions", "inbox", f ?? {}] as const,
+  studyMaterials: ["study-materials"] as const,
+  studyMaterial: (id: number) => ["study-materials", id] as const,
 };
