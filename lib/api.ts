@@ -23,6 +23,11 @@ import type {
   Feedback,
   FeedbackRequest,
   Progress,
+  StudyMaterial,
+  StudyMaterialRequest,
+  SubmissionInbox,
+  AiPracticeRequest,
+  DashboardEnvelope,
 } from "./types";
 
 const REFRESH_STORAGE_KEY = "elw_refresh_token";
@@ -365,3 +370,72 @@ export function createFeedback(body: FeedbackRequest): Promise<Feedback> {
     body: JSON.stringify(body),
   });
 }
+
+// ---- ILLMS Upgrade Endpoints ----
+
+// Dashboard (role-aware; data shape depends on me.role)
+export function getDashboard(): Promise<DashboardEnvelope> {
+  return apiFetch<DashboardEnvelope>("/api/dashboard/");
+}
+
+// Teacher inbox — replaces the client-side grading-queue fan-out (see brief 02)
+export function listSubmissionsInbox(params?: {
+  status?: string;
+  class_id?: number;
+  exercise_id?: number;
+}): Promise<SubmissionInbox[]> {
+  const qs = new URLSearchParams();
+  if (params?.status) qs.set("status", params.status);
+  if (params?.class_id != null) qs.set("class_id", String(params.class_id));
+  if (params?.exercise_id != null) qs.set("exercise_id", String(params.exercise_id));
+  const suffix = qs.toString() ? `?${qs}` : "";
+  return apiFetch<SubmissionInbox[]>(`/api/submissions/inbox/${suffix}`);
+}
+
+// AI evaluation (teacher/admin triggers AI grading on an existing submission)
+export function aiEvaluateSubmission(id: number): Promise<Feedback> {
+  return apiFetch<Feedback>(`/api/submissions/${id}/ai-evaluate/`, { method: "POST" });
+}
+
+// AI practice (student): returns { submission, feedback }
+export function aiPractice(body: AiPracticeRequest): Promise<{ submission: Submission; feedback: Feedback }> {
+  return apiFetch("/api/submissions/ai-practice/", { method: "POST", body: JSON.stringify(body) });
+}
+
+// Study materials
+export function listStudyMaterials(): Promise<StudyMaterial[]> {
+  return apiFetch<StudyMaterial[]>("/api/study-materials/");
+}
+export function getStudyMaterial(id: number): Promise<StudyMaterial> {
+  return apiFetch<StudyMaterial>(`/api/study-materials/${id}/`);
+}
+export function createStudyMaterial(body: StudyMaterialRequest): Promise<StudyMaterial> {
+  return apiFetch<StudyMaterial>("/api/study-materials/", { method: "POST", body: JSON.stringify(body) });
+}
+export function updateStudyMaterial(id: number, body: Partial<StudyMaterialRequest>): Promise<StudyMaterial> {
+  return apiFetch<StudyMaterial>(`/api/study-materials/${id}/`, { method: "PATCH", body: JSON.stringify(body) });
+}
+export function deleteStudyMaterial(id: number): Promise<void> {
+  return apiFetch<void>(`/api/study-materials/${id}/`, { method: "DELETE" });
+}
+
+// CSV/binary download — apiFetch can't be used (it does res.json()).
+export async function downloadGradeReport(classId: number): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/reports/grades?class_id=${classId}&format=csv`, {
+    headers: {
+      Accept: "text/csv",
+      ...(getAccessToken() ? { Authorization: `Bearer ${getAccessToken()}` } : {}),
+    },
+  });
+  if (!res.ok) throw await toApiError(res); // reuse existing error normalizer (403 "Not your class", 404)
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `grades_class_${classId}.csv`; // backend sets Content-Disposition too
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+

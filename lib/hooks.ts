@@ -1,22 +1,21 @@
-// TanStack Query hooks. One per resource/action.
+import { useEffect } from "react";
 import {
   useMutation,
-  useQueries,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import * as api from "./api";
 import { qk } from "./query-keys";
+import { openSocket } from "./ws";
 import type {
   AssignmentRequest,
-  Class,
   ClassRequest,
   ExerciseRequest,
   FeedbackRequest,
   LearningModuleRequest,
   LessonPlanRequest,
-  Submission,
   SubmissionRequest,
+  StudyMaterialRequest,
 } from "./types";
 
 // Classes
@@ -103,28 +102,20 @@ export function useCreateSubmission() {
   });
 }
 
-// Student dashboard "due soon": no aggregate endpoint exists, so fan out
-// classes -> per-class assignments and flatten (see plan §9 M2 note).
-export function useDueAssignments() {
-  const classes = useClasses();
-  const classList = classes.data ?? [];
-  const assignmentQueries = useQueries({
-    queries: classList.map((c) => ({
-      queryKey: qk.classAssignments(c.id),
-      queryFn: () => api.listClassAssignments(c.id),
-      enabled: classes.isSuccess,
-    })),
+// Dashboard & Submissions Inbox
+export function useDashboard() {
+  return useQuery({ queryKey: qk.dashboard, queryFn: api.getDashboard });
+}
+
+export function useSubmissionsInbox(filters?: {
+  status?: string;
+  class_id?: number;
+  exercise_id?: number;
+}) {
+  return useQuery({
+    queryKey: qk.submissionsInbox(filters),
+    queryFn: () => api.listSubmissionsInbox(filters),
   });
-  const isLoading =
-    classes.isLoading || assignmentQueries.some((q) => q.isLoading);
-  const isError = classes.isError || assignmentQueries.some((q) => q.isError);
-  const items = classList.flatMap((c, i) =>
-    (assignmentQueries[i]?.data ?? []).map((assignment) => ({
-      assignment,
-      klass: c,
-    })),
-  );
-  return { items, isLoading, isError };
 }
 
 export function useExerciseSubmissions(id: number) {
@@ -237,89 +228,73 @@ export function useCreateFeedback() {
   });
 }
 
-// Teacher grading queue: no aggregate submissions endpoint, so fan out
-// classes -> assignments -> unique exercise_ids -> submissions, and resolve
-// student names from class rosters (GET /users/ is 403 for teachers).
-export type QueueItem = {
-  submission: Submission;
-  klass: Class;
-  studentName?: string;
-};
-
-export function useGradingQueue() {
-  const classes = useClasses();
-  const classList = classes.data ?? [];
-
-  const assignmentQs = useQueries({
-    queries: classList.map((c) => ({
-      queryKey: qk.classAssignments(c.id),
-      queryFn: () => api.listClassAssignments(c.id),
-      enabled: classes.isSuccess,
-    })),
+// ---- Study Materials ----
+export function useStudyMaterials() {
+  return useQuery({ queryKey: qk.studyMaterials, queryFn: api.listStudyMaterials });
+}
+export function useStudyMaterial(id: number) {
+  return useQuery({
+    queryKey: qk.studyMaterial(id),
+    queryFn: () => api.getStudyMaterial(id),
+    enabled: Number.isFinite(id),
   });
-  const rosterQs = useQueries({
-    queries: classList.map((c) => ({
-      queryKey: qk.classStudents(c.id),
-      queryFn: () => api.listClassStudents(c.id),
-      enabled: classes.isSuccess,
-    })),
+}
+export function useCreateStudyMaterial() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.createStudyMaterial,
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.studyMaterials }),
   });
-
-  const studentName = new Map<number, string>();
-  rosterQs.forEach((q) =>
-    (q.data ?? []).forEach((u) => studentName.set(u.id, u.full_name)),
-  );
-
-  const exerciseClass = new Map<number, Class>();
-  classList.forEach((c, i) =>
-    (assignmentQs[i]?.data ?? []).forEach((a) => {
-      if (a.exercise_id != null) exerciseClass.set(a.exercise_id, c);
-    }),
-  );
-  const exerciseIds = Array.from(exerciseClass.keys());
-
-  const submissionQs = useQueries({
-    queries: exerciseIds.map((eid) => ({
-      queryKey: qk.exerciseSubmissions(eid),
-      queryFn: () => api.listExerciseSubmissions(eid),
-      enabled: classes.isSuccess,
-    })),
+}
+export function useUpdateStudyMaterial(id: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (b: Partial<StudyMaterialRequest>) => api.updateStudyMaterial(id, b),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.studyMaterials });
+      qc.invalidateQueries({ queryKey: qk.studyMaterial(id) });
+    },
   });
-
-  const items: QueueItem[] = exerciseIds.flatMap((eid, i) =>
-    (submissionQs[i]?.data ?? []).map((submission) => ({
-      submission,
-      klass: exerciseClass.get(eid) as Class,
-      studentName: studentName.get(submission.student_id),
-    })),
-  );
-
-  const isLoading =
-    classes.isLoading ||
-    assignmentQs.some((q) => q.isLoading) ||
-    rosterQs.some((q) => q.isLoading) ||
-    submissionQs.some((q) => q.isLoading);
-  const isError =
-    classes.isError ||
-    assignmentQs.some((q) => q.isError) ||
-    submissionQs.some((q) => q.isError);
-
-  return { items, isLoading, isError };
+}
+export function useDeleteStudyMaterial() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => api.deleteStudyMaterial(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.studyMaterials }),
+  });
 }
 
-// Graded status for a set of submissions (no bulk feedback endpoint).
-export function useFeedbackMap(submissionIds: number[]) {
-  const queries = useQueries({
-    queries: submissionIds.map((id) => ({
-      queryKey: qk.submissionFeedback(id),
-      queryFn: () => api.listSubmissionFeedback(id),
-      enabled: Number.isFinite(id),
-    })),
+// ---- AI Tools ----
+export function useAiPractice() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.aiPractice,
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.mySubmissions }),
   });
-  const map = new Map<number, { graded: boolean; score: string | null }>();
-  submissionIds.forEach((id, i) => {
-    const fb = queries[i]?.data ?? [];
-    map.set(id, { graded: fb.length > 0, score: fb[fb.length - 1]?.score ?? null });
+}
+export function useAiEvaluate(submissionId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.aiEvaluateSubmission(submissionId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.submissionFeedback(submissionId) });
+      qc.invalidateQueries({ queryKey: qk.submissionsInbox() });
+      qc.invalidateQueries({ queryKey: qk.dashboard });
+    },
   });
-  return { map, isLoading: queries.some((q) => q.isLoading) };
+}
+
+// ---- Realtime WebSockets ----
+export function useRealtimeNotifications() {
+  const qc = useQueryClient();
+  useEffect(() => {
+    const ws = openSocket("/ws/notifications/", (msg) => {
+      const m = msg as { event?: string };
+      qc.invalidateQueries({ queryKey: qk.dashboard });
+      qc.invalidateQueries({ queryKey: qk.submissionsInbox() });
+      if (m.event === "assignment_created") qc.invalidateQueries({ queryKey: qk.classes });
+      if (m.event === "feedback_posted") qc.invalidateQueries({ queryKey: qk.mySubmissions });
+    });
+    return () => ws.close();
+  }, [qc]);
 }

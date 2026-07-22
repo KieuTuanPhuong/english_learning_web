@@ -4,6 +4,102 @@
  */
 
 export interface paths {
+    "/api/admin/activity/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recent admin activity (audit logs + new users/submissions/feedback)
+         * @description Recent admin activity feed (read-only, Admin only).
+         */
+        get: operations["admin_activity_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/health/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * System health probe (database check + entity counts)
+         * @description System health snapshot (read-only, Admin only).
+         */
+        get: operations["admin_health_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai-models/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Admin-managed multimodal-evaluation engine registry (docs.md UC-20/21,
+         *     RBAC row 13). Toggling is_active/strictness reconfigures the live AI grader.
+         */
+        get: operations["ai_models_list"];
+        put?: never;
+        /**
+         * @description Admin-managed multimodal-evaluation engine registry (docs.md UC-20/21,
+         *     RBAC row 13). Toggling is_active/strictness reconfigures the live AI grader.
+         */
+        post: operations["ai_models_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai-models/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Admin-managed multimodal-evaluation engine registry (docs.md UC-20/21,
+         *     RBAC row 13). Toggling is_active/strictness reconfigures the live AI grader.
+         */
+        get: operations["ai_models_retrieve"];
+        /**
+         * @description Admin-managed multimodal-evaluation engine registry (docs.md UC-20/21,
+         *     RBAC row 13). Toggling is_active/strictness reconfigures the live AI grader.
+         */
+        put: operations["ai_models_update"];
+        post?: never;
+        /**
+         * @description Admin-managed multimodal-evaluation engine registry (docs.md UC-20/21,
+         *     RBAC row 13). Toggling is_active/strictness reconfigures the live AI grader.
+         */
+        delete: operations["ai_models_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Admin-managed multimodal-evaluation engine registry (docs.md UC-20/21,
+         *     RBAC row 13). Toggling is_active/strictness reconfigures the live AI grader.
+         */
+        patch: operations["ai_models_partial_update"];
+        trace?: never;
+    };
     "/api/auth/login": {
         parameters: {
             query?: never;
@@ -184,6 +280,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/dashboard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Role-aware dashboard aggregate (student / teacher / admin)
+         * @description Returns a different payload shape per role. Student: due/upcoming assignments, in-progress modules, recent feedback. Teacher: class & student counts, ungraded-submission count, recent activity. Admin: user counts by role and platform totals + recent rows.
+         */
+        get: operations["dashboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/exercises/{id}/": {
         parameters: {
             query?: never;
@@ -320,6 +436,97 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/reports/grades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export a class grade report (CSV; PDF deferred) */
+        get: operations["reports_grades_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-materials/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Official study-documents library.
+         *
+         *     Read (list/retrieve) is open to every authenticated, active user (RBAC
+         *     row 7 — "Read & Save Study Documents"). Write (create/update/destroy) is
+         *     Admin-only (RBAC row 6 — "Manage Official Study Materials Library").
+         */
+        get: operations["study_materials_list"];
+        put?: never;
+        /**
+         * @description Official study-documents library.
+         *
+         *     Read (list/retrieve) is open to every authenticated, active user (RBAC
+         *     row 7 — "Read & Save Study Documents"). Write (create/update/destroy) is
+         *     Admin-only (RBAC row 6 — "Manage Official Study Materials Library").
+         */
+        post: operations["study_materials_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-materials/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Official study-documents library.
+         *
+         *     Read (list/retrieve) is open to every authenticated, active user (RBAC
+         *     row 7 — "Read & Save Study Documents"). Write (create/update/destroy) is
+         *     Admin-only (RBAC row 6 — "Manage Official Study Materials Library").
+         */
+        get: operations["study_materials_retrieve"];
+        /**
+         * @description Official study-documents library.
+         *
+         *     Read (list/retrieve) is open to every authenticated, active user (RBAC
+         *     row 7 — "Read & Save Study Documents"). Write (create/update/destroy) is
+         *     Admin-only (RBAC row 6 — "Manage Official Study Materials Library").
+         */
+        put: operations["study_materials_update"];
+        post?: never;
+        /**
+         * @description Official study-documents library.
+         *
+         *     Read (list/retrieve) is open to every authenticated, active user (RBAC
+         *     row 7 — "Read & Save Study Documents"). Write (create/update/destroy) is
+         *     Admin-only (RBAC row 6 — "Manage Official Study Materials Library").
+         */
+        delete: operations["study_materials_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Official study-documents library.
+         *
+         *     Read (list/retrieve) is open to every authenticated, active user (RBAC
+         *     row 7 — "Read & Save Study Documents"). Write (create/update/destroy) is
+         *     Admin-only (RBAC row 6 — "Manage Official Study Materials Library").
+         */
+        patch: operations["study_materials_partial_update"];
+        trace?: never;
+    };
     "/api/submissions/": {
         parameters: {
             query?: never;
@@ -336,6 +543,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/submissions/{id}/ai-evaluate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request AI feedback for a submission (UC-17/18)
+         * @description Teacher/Admin triggers AI grading on an existing submission. Runs the
+         *     active backend SYNCHRONOUSLY (MVP) and writes an is_ai_generated Feedback
+         *     row (reviewer=None). Structured to move to an async worker later.
+         */
+        post: operations["submissions_ai_evaluate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/submissions/{id}/feedback/": {
         parameters: {
             query?: never;
@@ -343,8 +572,50 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List feedback on a submission */
+        /** List feedback on a submission (owner / reviewer / class teacher / admin) */
         get: operations["submissions_feedback_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/submissions/ai-practice/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Autonomous AI skill practice (RBAC row 12, UC-09)
+         * @description Student practices an exercise off-assignment and gets immediate AI
+         *     feedback via the mock backend. Creates a Submission (assignment=None),
+         *     derives submission_type from the exercise, then evaluates it.
+         */
+        post: operations["submissions_ai_practice_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/submissions/inbox/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Teacher inbox: submissions across the teacher's own exercises
+         * @description Aggregates submissions for every exercise the requesting teacher owns (Exercise.created_by, with module.created_by fallback), including self-practice submissions where assignment is null. Admins see all submissions. Optional filters: status, class_id, exercise_id.
+         */
+        get: operations["submissions_inbox_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -377,6 +648,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** List users (admin) — filterable by role/status/search */
         get: operations["users_list"];
         put?: never;
         post: operations["users_create"];
@@ -425,6 +697,45 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description One normalized row in the admin activity feed (read-only). */
+        ActivityItem: {
+            type: string;
+            id: number;
+            summary: string;
+            /** Format: date-time */
+            timestamp: string;
+        };
+        AiModel: {
+            readonly id: number;
+            model_name: string;
+            endpoint_url: string;
+            version_identifier: string;
+            is_active?: boolean;
+            strictness?: components["schemas"]["StrictnessEnum"];
+            readonly updated_by_id: number;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        AiModelRequest: {
+            model_name: string;
+            endpoint_url: string;
+            version_identifier: string;
+            is_active?: boolean;
+            strictness?: components["schemas"]["StrictnessEnum"];
+        };
+        /**
+         * @description Ad-hoc student practice against an exercise — no Assignment required.
+         *     Mirrors SubmissionSerializer's writable payload fields.
+         */
+        AiPracticeRequest: {
+            exercise_id: number;
+            writing_text?: string | null;
+            audio_recording_url?: string | null;
+        };
+        AiPracticeResult: {
+            submission: components["schemas"]["Submission"];
+            feedback: components["schemas"]["Feedback"];
+        };
         Assignment: {
             readonly id: number;
             readonly class_id: number;
@@ -445,14 +756,14 @@ export interface components {
         Class: {
             readonly id: number;
             class_name: string;
-            teacher_id?: number | null;
+            teacher_id?: number;
             academic_year?: string | null;
             /** Format: date-time */
             readonly created_at: string;
         };
         ClassRequest: {
             class_name: string;
-            teacher_id?: number | null;
+            teacher_id?: number;
             academic_year?: string | null;
         };
         ClassStudent: {
@@ -461,6 +772,14 @@ export interface components {
             readonly student_id: number;
             /** Format: date-time */
             readonly joined_at: string;
+        };
+        Dashboard: {
+            role: string;
+            /** Format: date-time */
+            generated_at: string;
+            data: {
+                [key: string]: unknown;
+            };
         };
         /**
          * @description * `beginner` - Beginner
@@ -478,7 +797,9 @@ export interface components {
             title: string;
             exercise_type: components["schemas"]["SkillTypeEnum"];
             prompt_text: string;
+            content_text?: string | null;
             audio_prompt_url?: string | null;
+            readonly created_by: number;
             readonly questions: components["schemas"]["Question"][];
             /** Format: date-time */
             readonly created_at: string;
@@ -488,6 +809,7 @@ export interface components {
             title: string;
             exercise_type: components["schemas"]["SkillTypeEnum"];
             prompt_text: string;
+            content_text?: string | null;
             audio_prompt_url?: string | null;
         };
         Feedback: {
@@ -497,6 +819,7 @@ export interface components {
             /** Format: decimal */
             score?: string | null;
             comments?: string | null;
+            readonly is_ai_generated: boolean;
             /** Format: date-time */
             readonly created_at: string;
         };
@@ -505,6 +828,18 @@ export interface components {
             /** Format: decimal */
             score?: string | null;
             comments?: string | null;
+        };
+        /** @description System health snapshot (read-only) — see AdminHealthView. */
+        Health: {
+            status: string;
+            database: string;
+            /** Format: double */
+            db_latency_ms: number;
+            counts: {
+                [key: string]: number;
+            };
+            /** Format: date-time */
+            server_time: string;
         };
         LearningModule: {
             readonly id: number;
@@ -547,9 +882,16 @@ export interface components {
         };
         /** @enum {unknown} */
         NullEnum: null;
+        PatchedAiModelRequest: {
+            model_name?: string;
+            endpoint_url?: string;
+            version_identifier?: string;
+            is_active?: boolean;
+            strictness?: components["schemas"]["StrictnessEnum"];
+        };
         PatchedClassRequest: {
             class_name?: string;
-            teacher_id?: number | null;
+            teacher_id?: number;
             academic_year?: string | null;
         };
         PatchedLearningModuleRequest: {
@@ -557,12 +899,24 @@ export interface components {
             description?: string | null;
             difficulty_level?: (components["schemas"]["DifficultyLevelEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
         };
+        /**
+         * @description Official study document. ``file_url`` is a plain mock string URL — there
+         *     is no real upload backend in this MVP, so clients send/receive a URL string
+         *     (same convention as ``Exercise.audio_prompt_url``). ``uploaded_by_id`` is
+         *     set server-side to the requesting admin and is read-only.
+         */
+        PatchedStudyMaterialRequest: {
+            title?: string;
+            file_url?: string;
+            description?: string | null;
+            class_id?: number | null;
+        };
         PatchedUserRequest: {
             /** Format: email */
             email?: string;
             full_name?: string;
             avatar_url?: string | null;
-            role?: components["schemas"]["RoleEnum"];
+            role?: components["schemas"]["UserRoleEnum"];
         };
         /**
          * @description Self-service / admin update. `status` is only honoured for admins
@@ -571,7 +925,7 @@ export interface components {
         PatchedUserUpdateRequest: {
             full_name?: string;
             avatar_url?: string | null;
-            status?: components["schemas"]["StatusEnum"];
+            status?: components["schemas"]["Status36eEnum"];
         };
         Progress: {
             readonly id: number;
@@ -618,15 +972,14 @@ export interface components {
             password: string;
             full_name: string;
             avatar_url?: string | null;
-            role: components["schemas"]["RoleEnum"];
+            role: components["schemas"]["RegisterRoleEnum"];
         };
         /**
          * @description * `student` - Student
          *     * `teacher` - Teacher
-         *     * `admin` - Admin
          * @enum {string}
          */
-        RoleEnum: "student" | "teacher" | "admin";
+        RegisterRoleEnum: "student" | "teacher";
         /**
          * @description * `writing` - Writing
          *     * `speaking` - Speaking
@@ -642,7 +995,49 @@ export interface components {
          *     * `inactive` - Inactive
          * @enum {string}
          */
-        StatusEnum: "active" | "suspended" | "inactive";
+        Status36eEnum: "active" | "suspended" | "inactive";
+        /**
+         * @description * `pending` - Pending
+         *     * `graded` - Graded
+         *     * `ai_graded` - AI Graded
+         * @enum {string}
+         */
+        StatusD4fEnum: "pending" | "graded" | "ai_graded";
+        /**
+         * @description * `lenient` - Lenient
+         *     * `standard` - Standard
+         *     * `strict` - Strict
+         * @enum {string}
+         */
+        StrictnessEnum: "lenient" | "standard" | "strict";
+        /**
+         * @description Official study document. ``file_url`` is a plain mock string URL — there
+         *     is no real upload backend in this MVP, so clients send/receive a URL string
+         *     (same convention as ``Exercise.audio_prompt_url``). ``uploaded_by_id`` is
+         *     set server-side to the requesting admin and is read-only.
+         */
+        StudyMaterial: {
+            readonly id: number;
+            title: string;
+            file_url: string;
+            description?: string | null;
+            readonly uploaded_by_id: number;
+            class_id?: number | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description Official study document. ``file_url`` is a plain mock string URL — there
+         *     is no real upload backend in this MVP, so clients send/receive a URL string
+         *     (same convention as ``Exercise.audio_prompt_url``). ``uploaded_by_id`` is
+         *     set server-side to the requesting admin and is read-only.
+         */
+        StudyMaterialRequest: {
+            title: string;
+            file_url: string;
+            description?: string | null;
+            class_id?: number | null;
+        };
         Submission: {
             readonly id: number;
             exercise_id: number;
@@ -653,9 +1048,35 @@ export interface components {
             answers?: unknown;
             /** Format: decimal */
             readonly auto_score: string | null;
+            readonly status: components["schemas"]["StatusD4fEnum"];
             readonly student_id: number;
             /** Format: date-time */
             readonly submitted_at: string;
+        };
+        /**
+         * @description Read-only inbox row: existing submission fields + grading-state
+         *     annotations derived from Feedback. Honors docs.md §6 directive #1 —
+         *     grading attribution is decided by is_ai_generated, never by assuming a
+         *     teacher reviewer exists.
+         */
+        SubmissionInbox: {
+            readonly id: number;
+            exercise_id: number;
+            assignment_id?: number | null;
+            submission_type: components["schemas"]["SkillTypeEnum"];
+            writing_text?: string | null;
+            audio_recording_url?: string | null;
+            answers?: unknown;
+            /** Format: decimal */
+            readonly auto_score: string | null;
+            readonly status: components["schemas"]["StatusD4fEnum"];
+            readonly student_id: number;
+            /** Format: date-time */
+            readonly submitted_at: string;
+            readonly is_graded: string;
+            readonly grading_source: string;
+            readonly latest_score: string;
+            readonly student_name: string;
         };
         SubmissionRequest: {
             exercise_id: number;
@@ -691,8 +1112,8 @@ export interface components {
             email: string;
             full_name: string;
             avatar_url?: string | null;
-            role: components["schemas"]["RoleEnum"];
-            readonly status: components["schemas"]["StatusEnum"];
+            role: components["schemas"]["UserRoleEnum"];
+            readonly status: components["schemas"]["Status36eEnum"];
             /** Format: date-time */
             readonly created_at: string;
             /** Format: date-time */
@@ -703,8 +1124,15 @@ export interface components {
             email: string;
             full_name: string;
             avatar_url?: string | null;
-            role: components["schemas"]["RoleEnum"];
+            role: components["schemas"]["UserRoleEnum"];
         };
+        /**
+         * @description * `student` - Student
+         *     * `teacher` - Teacher
+         *     * `admin` - Admin
+         * @enum {string}
+         */
+        UserRoleEnum: "student" | "teacher" | "admin";
         /**
          * @description Self-service / admin update. `status` is only honoured for admins
          *     (enforced in the view).
@@ -712,7 +1140,7 @@ export interface components {
         UserUpdateRequest: {
             full_name?: string;
             avatar_url?: string | null;
-            status?: components["schemas"]["StatusEnum"];
+            status?: components["schemas"]["Status36eEnum"];
         };
     };
     responses: never;
@@ -723,6 +1151,190 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    admin_activity_list: {
+        parameters: {
+            query?: {
+                /** @description Max rows to return (default 50, max 200) */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityItem"][];
+                };
+            };
+        };
+    };
+    admin_health_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    ai_models_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiModel"][];
+                };
+            };
+        };
+    };
+    ai_models_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiModelRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AiModelRequest"];
+                "multipart/form-data": components["schemas"]["AiModelRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiModel"];
+                };
+            };
+        };
+    };
+    ai_models_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this ai model. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiModel"];
+                };
+            };
+        };
+    };
+    ai_models_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this ai model. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiModelRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AiModelRequest"];
+                "multipart/form-data": components["schemas"]["AiModelRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiModel"];
+                };
+            };
+        };
+    };
+    ai_models_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this ai model. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ai_models_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this ai model. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedAiModelRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedAiModelRequest"];
+                "multipart/form-data": components["schemas"]["PatchedAiModelRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiModel"];
+                };
+            };
+        };
+    };
     auth_login_create: {
         parameters: {
             query?: never;
@@ -1194,6 +1806,25 @@ export interface operations {
             };
         };
     };
+    dashboard_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Dashboard"];
+                };
+            };
+        };
+    };
     exercises_retrieve: {
         parameters: {
             query?: never;
@@ -1537,6 +2168,194 @@ export interface operations {
             };
         };
     };
+    reports_grades_retrieve: {
+        parameters: {
+            query: {
+                /** @description Class to report on. Teachers may only export their own. */
+                class_id: number;
+                /** @description csv (default, implemented) or pdf (deferred — 501 unless reportlab hook enabled). */
+                format?: "csv" | "pdf";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description Not your class */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Class not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PDF export not enabled */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    study_materials_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyMaterial"][];
+                };
+            };
+        };
+    };
+    study_materials_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudyMaterialRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["StudyMaterialRequest"];
+                "multipart/form-data": components["schemas"]["StudyMaterialRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyMaterial"];
+                };
+            };
+        };
+    };
+    study_materials_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this study material. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyMaterial"];
+                };
+            };
+        };
+    };
+    study_materials_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this study material. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudyMaterialRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["StudyMaterialRequest"];
+                "multipart/form-data": components["schemas"]["StudyMaterialRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyMaterial"];
+                };
+            };
+        };
+    };
+    study_materials_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this study material. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    study_materials_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this study material. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedStudyMaterialRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedStudyMaterialRequest"];
+                "multipart/form-data": components["schemas"]["PatchedStudyMaterialRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyMaterial"];
+                };
+            };
+        };
+    };
     submissions_create: {
         parameters: {
             query?: never;
@@ -1562,6 +2381,28 @@ export interface operations {
             };
         };
     };
+    submissions_ai_evaluate_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this submission. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Feedback"];
+                };
+            };
+        };
+    };
     submissions_feedback_list: {
         parameters: {
             query?: never;
@@ -1580,6 +2421,64 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Feedback"][];
+                };
+            };
+            /** @description Not permitted to view this feedback */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    submissions_ai_practice_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiPracticeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AiPracticeRequest"];
+                "multipart/form-data": components["schemas"]["AiPracticeRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiPracticeResult"];
+                };
+            };
+        };
+    };
+    submissions_inbox_list: {
+        parameters: {
+            query?: {
+                /** @description Filter to submissions whose assignment targets this class */
+                class_id?: number;
+                /** @description Filter to a single exercise */
+                exercise_id?: number;
+                /** @description Filter by submission status (stored values): pending | graded | ai_graded */
+                status?: "ai_graded" | "graded" | "pending";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmissionInbox"][];
                 };
             };
         };
@@ -1605,7 +2504,14 @@ export interface operations {
     };
     users_list: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Filter by role: admin | teacher | student */
+                role?: string;
+                /** @description Case-insensitive match on email or full_name */
+                search?: string;
+                /** @description Filter by status: active | suspended | inactive */
+                status?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;

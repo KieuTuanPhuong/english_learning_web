@@ -86,7 +86,12 @@ export default function ModuleDetailPage() {
                       {i + 1}. {ex.title}
                     </span>
                   </div>
-                  <Badge kind={ex.exercise_type}>{ex.exercise_type}</Badge>
+                  <div className="flex items-center gap-2">
+                    {ex.questions && ex.questions.length > 0 && (
+                      <Badge className="bg-zinc-100 text-zinc-600">{ex.questions.length} Qs</Badge>
+                    )}
+                    <Badge kind={ex.exercise_type}>{ex.exercise_type}</Badge>
+                  </div>
                 </Card>
               </Link>
             );
