@@ -2,7 +2,7 @@ import { QuestionOption } from "@/lib/exercises";
 import { cn } from "@/lib/cn";
 
 interface TrueFalseProps {
-  options: QuestionOption[];
+  options: readonly QuestionOption[];
   value?: number;
   onChange: (optionId: number) => void;
   disabled?: boolean;

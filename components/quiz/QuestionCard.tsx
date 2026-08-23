@@ -53,6 +53,15 @@ export function QuestionCard({ number, question, answer, onChange, disabled }: Q
           />
         )}
 
+        {/* The exam marks an over-long answer wrong even when it contains the
+            key, so the limit is stated rather than silently applied. */}
+        {question.max_words != null && (
+          <p className="mt-2 text-xs font-medium uppercase tracking-wide text-amber-700">
+            No more than {question.max_words}{" "}
+            {question.max_words === 1 ? "word" : "words"} and/or a number
+          </p>
+        )}
+
         {type === "short_answer" && (
           <ShortAnswer
             value={answer?.text}

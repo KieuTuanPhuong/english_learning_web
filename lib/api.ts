@@ -28,6 +28,23 @@ import type {
   SubmissionInbox,
   AiPracticeRequest,
   DashboardEnvelope,
+  TestFormat,
+  MockTestTemplate,
+  AttemptMode,
+  TestAttempt,
+  TestAttemptListItem,
+  SectionAttempt,
+  TestAttemptReport,
+  SectionDraftRequest,
+  SectionSubmitRequest,
+  RubricTemplate,
+  WritingAnnotation,
+  WritingAnnotationRequest,
+  PronunciationDrill,
+  PronunciationDrillRequest,
+  PronunciationAttempt,
+  DrillType,
+  DifficultyLevel,
 } from "./types";
 
 const REFRESH_STORAGE_KEY = "elw_refresh_token";
@@ -103,7 +120,13 @@ function buildRequest(
 ): Request {
   const headers = new Headers(init?.headers);
   headers.set("Accept", "application/json");
-  if (init?.body && !headers.has("Content-Type")) {
+  // Never force JSON on a FormData body — the browser must set the multipart
+  // boundary itself (pronunciation audio upload, feature 04 WF7).
+  if (
+    init?.body &&
+    !(init.body instanceof FormData) &&
+    !headers.has("Content-Type")
+  ) {
     headers.set("Content-Type", "application/json");
   }
   if (withAuth && accessToken) {
@@ -417,6 +440,236 @@ export function updateStudyMaterial(id: number, body: Partial<StudyMaterialReque
 }
 export function deleteStudyMaterial(id: number): Promise<void> {
   return apiFetch<void>(`/api/study-materials/${id}/`, { method: "DELETE" });
+}
+
+// ---- Mock tests ------------------------------------------------------------
+// Only the student-facing endpoints get a client: template authoring and
+// conversion-table admin have no MVP UI (teachers use the API/Django admin).
+
+export function listTestFormats(): Promise<TestFormat[]> {
+  return apiFetch<TestFormat[]>("/api/mock-tests/formats/");
+}
+export function listMockTestTemplates(): Promise<MockTestTemplate[]> {
+  return apiFetch<MockTestTemplate[]>("/api/mock-tests/templates/");
+}
+export function getMockTestTemplate(id: number): Promise<MockTestTemplate> {
+  return apiFetch<MockTestTemplate>(`/api/mock-tests/templates/${id}/`);
+}
+// Returns the existing unfinished attempt if there is one, so this doubles as
+// "resume" — the server refuses to duplicate half-finished work.
+// `exam` sits the sections in the template's order; `practice` lets the student
+// begin with whichever skill they came to work on. Omitting the mode gets the
+// real sitting — the strict rule is what you get by saying nothing.
+export function createTestAttempt(
+  templateId: number,
+  mode: AttemptMode = "exam",
+): Promise<TestAttempt> {
+  return apiFetch<TestAttempt>(`/api/mock-tests/templates/${templateId}/attempts/`, {
+    method: "POST",
+    body: JSON.stringify({ mode }),
+  });
+}
+export function listMyTestAttempts(): Promise<TestAttemptListItem[]> {
+  return apiFetch<TestAttemptListItem[]>("/api/mock-tests/attempts/me/");
+}
+export function getTestAttempt(id: number): Promise<TestAttempt> {
+  return apiFetch<TestAttempt>(`/api/mock-tests/attempts/${id}/`);
+}
+// Starting a section is what starts the server clock — not attempt creation.
+export function startSection(
+  attemptId: number,
+  sectionAttemptId: number,
+): Promise<SectionAttempt> {
+  return apiFetch<SectionAttempt>(
+    `/api/mock-tests/attempts/${attemptId}/sections/${sectionAttemptId}/start/`,
+    { method: "POST" },
+  );
+}
+// Throws ApiError(409, code "section_expired") once time is up. Callers treat
+// that as a state transition (lock the UI), not an error toast.
+export function autosaveSection(
+  attemptId: number,
+  sectionAttemptId: number,
+  draft: SectionDraftRequest,
+): Promise<SectionAttempt> {
+  return apiFetch<SectionAttempt>(
+    `/api/mock-tests/attempts/${attemptId}/sections/${sectionAttemptId}/answers/`,
+    { method: "PATCH", body: JSON.stringify(draft) },
+  );
+}
+export function submitSection(
+  attemptId: number,
+  sectionAttemptId: number,
+  body: SectionSubmitRequest,
+): Promise<SectionAttempt> {
+  return apiFetch<SectionAttempt>(
+    `/api/mock-tests/attempts/${attemptId}/sections/${sectionAttemptId}/submit/`,
+    { method: "POST", body: JSON.stringify(body) },
+  );
+}
+// Closes the current part of a `sequential` section (a Listening recording, a
+// Speaking part) and opens the next. Idempotent server-side, so a double tap
+// cannot skip one.
+export function advanceSectionItem(
+  attemptId: number,
+  sectionAttemptId: number,
+  exerciseId: number,
+): Promise<SectionAttempt> {
+  return apiFetch<SectionAttempt>(
+    `/api/mock-tests/attempts/${attemptId}/sections/${sectionAttemptId}/advance/`,
+    { method: "POST", body: JSON.stringify({ exercise_id: exerciseId }) },
+  );
+}
+// Speaking answers upload as files and are submitted as URLs. The old path put
+// a base64 data URL in the submit body; three IELTS Speaking parts of up to
+// five minutes each would be tens of megabytes of JSON in a single request.
+export function uploadMockTestAudio(
+  audio: Blob,
+  mimeType: string,
+  context?: { attemptId: number; exerciseId: number },
+): Promise<{ url: string }> {
+  const form = new FormData();
+  form.append("audio", audio, `answer.${extFromMime(mimeType)}`);
+  if (context) {
+    // Lets the server apply this part's own max_record_seconds on top of the
+    // global cap — an IELTS Part 2 long turn really is capped at two minutes.
+    form.append("attempt_id", String(context.attemptId));
+    form.append("exercise_id", String(context.exerciseId));
+  }
+  return apiFetch<{ url: string }>("/api/media/audio", {
+    method: "POST",
+    body: form,
+  });
+}
+export function getTestAttemptReport(id: number): Promise<TestAttemptReport> {
+  return apiFetch<TestAttemptReport>(`/api/mock-tests/attempts/${id}/report/`);
+}
+
+// ---- Rubrics (feature 02) --------------------------------------------------
+export function listRubrics(): Promise<RubricTemplate[]> {
+  return apiFetch<RubricTemplate[]>("/api/rubrics/");
+}
+export function getRubric(id: number): Promise<RubricTemplate> {
+  return apiFetch<RubricTemplate>(`/api/rubrics/${id}/`);
+}
+// 200 with a null body when no rubric resolves for the exercise (doc 02 §4.2).
+export function getExerciseRubric(exerciseId: number): Promise<RubricTemplate | null> {
+  return apiFetch<RubricTemplate | null>(`/api/exercises/${exerciseId}/rubric/`);
+}
+
+// ---- Writing annotations (feature 03) --------------------------------------
+// Nested read, top-level writes — mirrors the Feedback split.
+export function listSubmissionAnnotations(id: number): Promise<WritingAnnotation[]> {
+  return apiFetch<WritingAnnotation[]>(`/api/submissions/${id}/annotations/`);
+}
+export function createAnnotation(
+  body: WritingAnnotationRequest,
+): Promise<WritingAnnotation> {
+  return apiFetch<WritingAnnotation>("/api/annotations/", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+export function updateAnnotation(
+  id: number,
+  body: Partial<WritingAnnotationRequest>,
+): Promise<WritingAnnotation> {
+  return apiFetch<WritingAnnotation>(`/api/annotations/${id}/`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+export function deleteAnnotation(id: number): Promise<void> {
+  return apiFetch<void>(`/api/annotations/${id}/`, { method: "DELETE" });
+}
+// Phase 2 — student marks an annotation as read.
+export function acknowledgeAnnotation(id: number): Promise<WritingAnnotation> {
+  return apiFetch<WritingAnnotation>(`/api/annotations/${id}/acknowledge/`, {
+    method: "POST",
+  });
+}
+
+// ---- Pronunciation practice (feature 04) -----------------------------------
+function pronunciationDrillQuery(params?: {
+  drill_type?: DrillType;
+  difficulty?: DifficultyLevel;
+  module_id?: number;
+}): string {
+  const qs = new URLSearchParams();
+  if (params?.drill_type) qs.set("drill_type", params.drill_type);
+  if (params?.difficulty) qs.set("difficulty", params.difficulty);
+  if (params?.module_id != null) qs.set("module_id", String(params.module_id));
+  return qs.toString() ? `?${qs}` : "";
+}
+
+export function listPronunciationDrills(params?: {
+  drill_type?: DrillType;
+  difficulty?: DifficultyLevel;
+  module_id?: number;
+}): Promise<PronunciationDrill[]> {
+  return apiFetch<PronunciationDrill[]>(
+    `/api/pronunciation/drills/${pronunciationDrillQuery(params)}`,
+  );
+}
+export function getPronunciationDrill(id: number): Promise<PronunciationDrill> {
+  return apiFetch<PronunciationDrill>(`/api/pronunciation/drills/${id}/`);
+}
+export function createPronunciationDrill(
+  body: PronunciationDrillRequest,
+): Promise<PronunciationDrill> {
+  return apiFetch<PronunciationDrill>("/api/pronunciation/drills/", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+export function updatePronunciationDrill(
+  id: number,
+  body: Partial<PronunciationDrillRequest>,
+): Promise<PronunciationDrill> {
+  return apiFetch<PronunciationDrill>(`/api/pronunciation/drills/${id}/`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+export function deletePronunciationDrill(id: number): Promise<void> {
+  return apiFetch<void>(`/api/pronunciation/drills/${id}/`, { method: "DELETE" });
+}
+
+/** File extension for the recorded blob's mime type (server transcodes anyway). */
+export function extFromMime(mimeType: string): string {
+  if (mimeType.includes("webm")) return "webm";
+  if (mimeType.includes("mp4")) return "mp4";
+  if (mimeType.includes("ogg")) return "ogg";
+  if (mimeType.includes("wav")) return "wav";
+  return "webm";
+}
+
+export function createPronunciationAttempt(
+  drillId: number,
+  audio: Blob,
+  mimeType: string,
+): Promise<PronunciationAttempt> {
+  const form = new FormData();
+  form.append("audio", audio, `attempt.${extFromMime(mimeType)}`);
+  return apiFetch<PronunciationAttempt>(
+    `/api/pronunciation/drills/${drillId}/attempts/`,
+    { method: "POST", body: form },
+  );
+}
+export function listDrillAttempts(drillId: number): Promise<PronunciationAttempt[]> {
+  return apiFetch<PronunciationAttempt[]>(
+    `/api/pronunciation/drills/${drillId}/attempts/`,
+  );
+}
+export function listMyPronunciationAttempts(params?: {
+  drill_id?: number;
+}): Promise<PronunciationAttempt[]> {
+  const qs = new URLSearchParams();
+  if (params?.drill_id != null) qs.set("drill_id", String(params.drill_id));
+  const suffix = qs.toString() ? `?${qs}` : "";
+  return apiFetch<PronunciationAttempt[]>(
+    `/api/pronunciation/attempts/me/${suffix}`,
+  );
 }
 
 // CSV/binary download — apiFetch can't be used (it does res.json()).
