@@ -12,6 +12,8 @@ import {
   useSubmissionsInbox,
   useCreateFeedback,
   useAiEvaluate,
+  useExerciseRubric,
+  useSubmissionAnnotations,
 } from "@/lib/hooks";
 import {
   Avatar,
@@ -25,6 +27,11 @@ import {
   TextField,
 } from "@/components/ui";
 import { AnswersReview } from "@/components/quiz/AnswersReview";
+import { RubricGradeForm } from "@/components/rubric/RubricGradeForm";
+import { RubricBreakdown } from "@/components/rubric/RubricBreakdown";
+import { AnnotationProvider } from "@/components/annotations/AnnotationContext";
+import { AnnotatedText } from "@/components/annotations/AnnotatedText";
+import { AnnotationSidebar } from "@/components/annotations/AnnotationSidebar";
 import { dateLabel, formatScore, timeAgo, submissionStatusLabel } from "@/lib/format";
 import { ApiError } from "@/lib/api";
 
@@ -42,14 +49,19 @@ function StudentSubmissionDetail() {
   const submission = submissions.data?.find((s) => s.id === id);
   const exercise = useExercise(submission?.exercise_id ?? NaN);
   const feedback = useSubmissionFeedback(id);
+  const annotations = useSubmissionAnnotations(id);
 
   if (submissions.isLoading) return <Skeleton className="h-64 w-full" />;
   if (submissions.isError) return <ErrorState message="Couldn’t load submission." />;
   if (!submission) return <ErrorState message="Submission not found." />;
 
   const fbs = feedback.data ?? [];
+  const anns = annotations.data ?? [];
+  const isWriting =
+    submission.submission_type === "writing" && !!submission.writing_text;
 
   return (
+    <AnnotationProvider>
     <div className="mx-auto max-w-2xl space-y-4">
       <Link
         href="/submissions"
@@ -81,15 +93,23 @@ function StudentSubmissionDetail() {
         {submission.answers ? (
           <AnswersReview questions={exercise.data?.questions || []} answersPayload={submission.answers} />
         ) : submission.writing_text ? (
-          <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-800">
-            {submission.writing_text}
-          </p>
+          <div className="mt-1">
+            <AnnotatedText
+              submissionId={id}
+              text={submission.writing_text}
+              annotations={anns}
+            />
+          </div>
         ) : submission.audio_recording_url ? (
           <audio controls src={submission.audio_recording_url} className="mt-2 w-full" />
         ) : (
           <p className="mt-1 text-sm text-zinc-400">No content.</p>
         )}
       </Card>
+
+      {isWriting && anns.length > 0 && (
+        <AnnotationSidebar submissionId={id} annotations={anns} readOnly />
+      )}
 
       {feedback.isLoading ? (
         <Skeleton className="h-24 w-full" />
@@ -117,6 +137,7 @@ function StudentSubmissionDetail() {
               {item.comments && (
                 <p className="whitespace-pre-wrap text-sm text-zinc-700">{item.comments}</p>
               )}
+              <RubricBreakdown feedback={item} />
               <p className="text-xs text-zinc-400">{timeAgo(item.created_at)}</p>
             </Card>
           ))}
@@ -125,6 +146,7 @@ function StudentSubmissionDetail() {
         <Card className="text-sm text-zinc-500">Awaiting feedback.</Card>
       )}
     </div>
+    </AnnotationProvider>
   );
 }
 
@@ -142,12 +164,15 @@ function TeacherGradingScreen() {
   const submission = inbox.data?.find((s) => s.id === id);
   const exercise = useExercise(submission?.exercise_id ?? NaN);
   const feedback = useSubmissionFeedback(id);
+  const rubric = useExerciseRubric(submission?.exercise_id ?? NaN);
+  const annotations = useSubmissionAnnotations(id);
 
   const createFeedback = useCreateFeedback();
   const aiEvaluate = useAiEvaluate(id);
 
   const [formError, setFormError] = useState<string | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [holisticMode, setHolisticMode] = useState(false);
 
   const {
     register,
@@ -163,6 +188,15 @@ function TeacherGradingScreen() {
   if (!submission) return <ErrorState message="Submission not found in your inbox." />;
 
   const fbs = feedback.data ?? [];
+  const productive =
+    submission.submission_type === "writing" ||
+    submission.submission_type === "speaking";
+  // Rubric grading applies to writing/speaking only; the "Grade without rubric"
+  // escape hatch (holisticMode) always falls back to the numeric form.
+  const showRubric = !!rubric.data && productive && !holisticMode;
+  const anns = annotations.data ?? [];
+  const isWriting =
+    submission.submission_type === "writing" && !!submission.writing_text;
 
   const onSubmit = async (data: GradeForm) => {
     setFormError(null);
@@ -212,6 +246,7 @@ function TeacherGradingScreen() {
         <Badge kind={submission.status}>{submissionStatusLabel(submission.status)}</Badge>
       </div>
 
+      <AnnotationProvider>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Left column: Prompt & Student Response */}
         <div className="space-y-4">
@@ -234,7 +269,12 @@ function TeacherGradingScreen() {
             {submission.answers ? (
               <AnswersReview questions={exercise.data?.questions || []} answersPayload={submission.answers} />
             ) : submission.writing_text ? (
-              <p className="whitespace-pre-wrap text-sm text-zinc-800">{submission.writing_text}</p>
+              <AnnotatedText
+                submissionId={id}
+                text={submission.writing_text}
+                annotations={anns}
+                interactive
+              />
             ) : submission.audio_recording_url ? (
               <audio controls src={submission.audio_recording_url} className="w-full mt-2" />
             ) : (
@@ -243,8 +283,11 @@ function TeacherGradingScreen() {
           </Card>
         </div>
 
-        {/* Right column: Feedback history & Grading Form */}
+        {/* Right column: Annotations sidebar, Feedback history & Grading Form */}
         <div className="space-y-4">
+          {isWriting && (
+            <AnnotationSidebar submissionId={id} annotations={anns} />
+          )}
           {/* AI grading option */}
           {submission.status === "pending" && (
             <Card className="space-y-3 border-violet-200 bg-violet-50/30">
@@ -303,7 +346,14 @@ function TeacherGradingScreen() {
             </div>
           ) : null}
 
-          {/* New Feedback Form */}
+          {/* New Feedback Form — rubric matrix when one resolves, else holistic */}
+          {showRubric && rubric.data ? (
+            <RubricGradeForm
+              submissionId={id}
+              template={rubric.data}
+              onUseHolistic={() => setHolisticMode(true)}
+            />
+          ) : (
           <Card className="space-y-4">
             <h3 className="text-lg font-bold text-zinc-800">Add Teacher Feedback</h3>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -340,8 +390,10 @@ function TeacherGradingScreen() {
               </Button>
             </form>
           </Card>
+          )}
         </div>
       </div>
+      </AnnotationProvider>
     </div>
   );
 }

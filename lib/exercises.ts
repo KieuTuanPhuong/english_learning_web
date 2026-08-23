@@ -1,7 +1,24 @@
-import { components } from "./types/api";
+// Structural shapes rather than the exact OpenAPI aliases: the same helpers and
+// quiz components must render both the authoring payload (`Question`, which
+// carries `is_correct`) and the mock-test runner's answer-blind payload
+// (`TestRunnerQuestion`, which deliberately omits it). Both stay assignable to
+// these, so every existing call site is unaffected.
+export type QuestionOption = {
+  readonly id: number;
+  text: string;
+  is_correct?: boolean;
+  order?: number;
+};
 
-export type Question = components["schemas"]["Question"];
-export type QuestionOption = components["schemas"]["QuestionOption"];
+export type Question = {
+  readonly id: number;
+  text: string;
+  order?: number;
+  /** IELTS "NO MORE THAN N WORDS" rubric. An over-long answer is marked wrong
+   *  even when it contains the key, so the limit is shown, not just enforced. */
+  readonly max_words?: number | null;
+  readonly options: readonly QuestionOption[];
+};
 
 export type QuestionType = "mcq" | "true_false" | "fill_blank" | "short_answer";
 

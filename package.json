@@ -11,6 +11,8 @@
     "gen:api": "openapi-typescript http://127.0.0.1:8000/api/schema/ -o lib/types/api.d.ts"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.27.20",
+    "@hookform/resolvers": "^5.7.1",
     "@tanstack/react-query": "^5.101.0",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.17.0",

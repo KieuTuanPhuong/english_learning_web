@@ -19,4 +19,24 @@ export const qk = {
     ["submissions", "inbox", f ?? {}] as const,
   studyMaterials: ["study-materials"] as const,
   studyMaterial: (id: number) => ["study-materials", id] as const,
+  // Mock tests
+  mockTestFormats: ["mock-tests", "formats"] as const,
+  mockTestTemplates: ["mock-tests", "templates"] as const,
+  mockTestTemplate: (id: number) => ["mock-tests", "templates", id] as const,
+  myTestAttempts: ["mock-tests", "attempts", "me"] as const,
+  testAttempt: (id: number) => ["mock-tests", "attempts", id] as const,
+  testAttemptReport: (id: number) => ["mock-tests", "attempts", id, "report"] as const,
+  // Rubrics (feature 02)
+  rubrics: ["rubrics"] as const,
+  rubric: (id: number) => ["rubrics", id] as const,
+  exerciseRubric: (exerciseId: number) => ["exercises", exerciseId, "rubric"] as const,
+  // Writing annotations (feature 03)
+  submissionAnnotations: (id: number) => ["submissions", id, "annotations"] as const,
+  // Pronunciation practice (feature 04)
+  pronunciationDrills: (f?: { drill_type?: string; difficulty?: string; module_id?: number }) =>
+    ["pronunciation", "drills", f ?? {}] as const,
+  pronunciationDrill: (id: number) => ["pronunciation", "drills", id] as const,
+  drillAttempts: (drillId: number) => ["pronunciation", "drills", drillId, "attempts"] as const,
+  myPronunciationAttempts: (f?: { drill_id?: number }) =>
+    ["pronunciation", "attempts", "me", f ?? {}] as const,
 };

@@ -100,6 +100,80 @@ export interface paths {
         patch: operations["ai_models_partial_update"];
         trace?: never;
     };
+    "/api/annotations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Inline teacher annotations on a writing submission
+         *     (docs/research/03-writing-annotations.md §4.4). Nested read lives on
+         *     SubmissionViewSet.annotations; this viewset owns the writes.
+         */
+        post: operations["annotations_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/annotations/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * @description Inline teacher annotations on a writing submission
+         *     (docs/research/03-writing-annotations.md §4.4). Nested read lives on
+         *     SubmissionViewSet.annotations; this viewset owns the writes.
+         */
+        put: operations["annotations_update"];
+        post?: never;
+        /**
+         * @description Inline teacher annotations on a writing submission
+         *     (docs/research/03-writing-annotations.md §4.4). Nested read lives on
+         *     SubmissionViewSet.annotations; this viewset owns the writes.
+         */
+        delete: operations["annotations_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Inline teacher annotations on a writing submission
+         *     (docs/research/03-writing-annotations.md §4.4). Nested read lives on
+         *     SubmissionViewSet.annotations; this viewset owns the writes.
+         */
+        patch: operations["annotations_partial_update"];
+        trace?: never;
+    };
+    "/api/annotations/{id}/acknowledge/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Acknowledge an annotation (submission's student only) — Phase 2
+         * @description Inline teacher annotations on a writing submission
+         *     (docs/research/03-writing-annotations.md §4.4). Nested read lives on
+         *     SubmissionViewSet.annotations; this viewset owns the writes.
+         */
+        post: operations["annotations_acknowledge_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/login": {
         parameters: {
             query?: never;
@@ -316,6 +390,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/exercises/{id}/rubric/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Resolved rubric template for this exercise (pin → type default → null)
+         * @description Returns the RubricTemplate that grading this exercise's productive submissions should use: the exercise's pinned template, else the active default for its exercise_type, else 200 with a null body (not 404) so the client falls back to holistic grading.
+         */
+        get: operations["exercises_rubric_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/exercises/{id}/submissions/": {
         parameters: {
             query?: never;
@@ -343,6 +437,437 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["feedback_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/media/audio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload an audio file and get back its URL
+         * @description Store one audio file and return the URL to reference it by.
+         *
+         *     Two callers, one endpoint:
+         *
+         *     * an admin attaching a recording to a listening ``Exercise``
+         *       (``audio_prompt_url``), and
+         *     * a student's Speaking answer during a mock test.
+         *
+         *     The second is why this exists. Speaking answers used to travel as base64
+         *     data URLs inside the section-submit body; an IELTS Speaking section is three
+         *     parts of up to five minutes each, which is tens of megabytes of JSON in one
+         *     request and the same again in the row. Uploading each clip on its own and
+         *     submitting URLs keeps both bounded.
+         *
+         *     Passing ``attempt_id`` + ``exercise_id`` applies that part's
+         *     ``max_record_seconds`` on top of the global cap, so an IELTS Part 2 long
+         *     turn is held to its real two minutes rather than the endpoint's six.
+         */
+        post: operations["media_audio_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/attempts/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description A student's sitting of a mock test. All timing is server-authoritative
+         *     (core/mock_tests.py): the client only reads `expires_at` and `server_time`.
+         */
+        get: operations["mock_tests_attempts_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/attempts/{id}/report/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Score report for an attempt (owner student / their teacher / admin)
+         * @description `partial` stays true while any section lacks a converted score — Listening/Reading land immediately, Writing/Speaking after teacher or AI grading. Scores are estimates: see `estimated`.
+         */
+        get: operations["mock_tests_attempts_report_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/attempts/{id}/sections/{section_attempt_id}/advance/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Close the current part of a sequential section
+         * @description Listening recordings and Speaking interview parts run one at a time with no going back. This closes the part in hand and opens the next; it is idempotent, so a double tap cannot skip one. Sections whose parts are all open (Reading, Writing) reject it.
+         */
+        post: operations["mock_tests_attempts_sections_advance_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/attempts/{id}/sections/{section_attempt_id}/answers/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Autosave the section's draft answers
+         * @description Replaces the whole draft envelope in one row UPDATE. Returns 409 with code `section_expired` once the clock has run out — the client then locks the UI and offers only Submit.
+         */
+        patch: operations["mock_tests_attempts_sections_answers_partial_update"];
+        trace?: never;
+    };
+    "/api/mock-tests/attempts/{id}/sections/{section_attempt_id}/start/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start a section's server clock
+         * @description Sets started_at and expires_at (duration + 30s grace). Sections must be taken in order, one at a time. Idempotent while the section is already running.
+         */
+        post: operations["mock_tests_attempts_sections_start_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/attempts/{id}/sections/{section_attempt_id}/submit/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit a section
+         * @description Creates one ordinary Submission per exercise in the section, auto-grades receptive ones, and converts the raw count into a band/scaled score. Accepted after expiry too, but then it grades the last draft the server accepted rather than the request body.
+         */
+        post: operations["mock_tests_attempts_sections_submit_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/attempts/me/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the current student's own mock-test attempts
+         * @description A student's sitting of a mock test. All timing is server-authoritative
+         *     (core/mock_tests.py): the client only reads `expires_at` and `server_time`.
+         */
+        get: operations["mock_tests_attempts_me_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/formats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Exam-format registry (IELTS Academic, TOEIC L&R, ...). Readable by any
+         *     authenticated user so the catalog can badge templates; writable by admins
+         *     only — adding a format is data entry, never a migration.
+         */
+        get: operations["mock_tests_formats_list"];
+        put?: never;
+        /**
+         * @description Exam-format registry (IELTS Academic, TOEIC L&R, ...). Readable by any
+         *     authenticated user so the catalog can badge templates; writable by admins
+         *     only — adding a format is data entry, never a migration.
+         */
+        post: operations["mock_tests_formats_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/formats/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Exam-format registry (IELTS Academic, TOEIC L&R, ...). Readable by any
+         *     authenticated user so the catalog can badge templates; writable by admins
+         *     only — adding a format is data entry, never a migration.
+         */
+        get: operations["mock_tests_formats_retrieve"];
+        /**
+         * @description Exam-format registry (IELTS Academic, TOEIC L&R, ...). Readable by any
+         *     authenticated user so the catalog can badge templates; writable by admins
+         *     only — adding a format is data entry, never a migration.
+         */
+        put: operations["mock_tests_formats_update"];
+        post?: never;
+        /**
+         * @description Exam-format registry (IELTS Academic, TOEIC L&R, ...). Readable by any
+         *     authenticated user so the catalog can badge templates; writable by admins
+         *     only — adding a format is data entry, never a migration.
+         */
+        delete: operations["mock_tests_formats_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Exam-format registry (IELTS Academic, TOEIC L&R, ...). Readable by any
+         *     authenticated user so the catalog can badge templates; writable by admins
+         *     only — adding a format is data entry, never a migration.
+         */
+        patch: operations["mock_tests_formats_partial_update"];
+        trace?: never;
+    };
+    "/api/mock-tests/formats/{id}/conversions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read or replace a format's raw -> band/scaled conversion tables
+         * @description GET returns every per-skill table for the format. PUT replaces one table: body is {skill, mapping, source_note}. Official IELTS/TOEIC tables are unpublished, so seeded mappings are approximations and reports label scores 'estimated'.
+         */
+        get: operations["mock_tests_formats_conversions_list"];
+        /**
+         * Read or replace a format's raw -> band/scaled conversion tables
+         * @description GET returns every per-skill table for the format. PUT replaces one table: body is {skill, mapping, source_note}. Official IELTS/TOEIC tables are unpublished, so seeded mappings are approximations and reports label scores 'estimated'.
+         */
+        put: operations["mock_tests_formats_conversions_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/templates/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description The platform's mock-test library: an ordered set of sections, each
+         *     wrapping existing Exercises.
+         *
+         *     Mock tests are app content, not classroom content — every authenticated
+         *     user reads the whole catalogue and any student can sit any test, with
+         *     admins curating the shelf. This mirrors StudyMaterialViewSet (RBAC rows
+         *     6-7): no publish gate, no per-teacher ownership scope.
+         */
+        get: operations["mock_tests_templates_list"];
+        put?: never;
+        /**
+         * @description The platform's mock-test library: an ordered set of sections, each
+         *     wrapping existing Exercises.
+         *
+         *     Mock tests are app content, not classroom content — every authenticated
+         *     user reads the whole catalogue and any student can sit any test, with
+         *     admins curating the shelf. This mirrors StudyMaterialViewSet (RBAC rows
+         *     6-7): no publish gate, no per-teacher ownership scope.
+         */
+        post: operations["mock_tests_templates_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/templates/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description The platform's mock-test library: an ordered set of sections, each
+         *     wrapping existing Exercises.
+         *
+         *     Mock tests are app content, not classroom content — every authenticated
+         *     user reads the whole catalogue and any student can sit any test, with
+         *     admins curating the shelf. This mirrors StudyMaterialViewSet (RBAC rows
+         *     6-7): no publish gate, no per-teacher ownership scope.
+         */
+        get: operations["mock_tests_templates_retrieve"];
+        /**
+         * @description The platform's mock-test library: an ordered set of sections, each
+         *     wrapping existing Exercises.
+         *
+         *     Mock tests are app content, not classroom content — every authenticated
+         *     user reads the whole catalogue and any student can sit any test, with
+         *     admins curating the shelf. This mirrors StudyMaterialViewSet (RBAC rows
+         *     6-7): no publish gate, no per-teacher ownership scope.
+         */
+        put: operations["mock_tests_templates_update"];
+        post?: never;
+        /**
+         * @description The platform's mock-test library: an ordered set of sections, each
+         *     wrapping existing Exercises.
+         *
+         *     Mock tests are app content, not classroom content — every authenticated
+         *     user reads the whole catalogue and any student can sit any test, with
+         *     admins curating the shelf. This mirrors StudyMaterialViewSet (RBAC rows
+         *     6-7): no publish gate, no per-teacher ownership scope.
+         */
+        delete: operations["mock_tests_templates_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description The platform's mock-test library: an ordered set of sections, each
+         *     wrapping existing Exercises.
+         *
+         *     Mock tests are app content, not classroom content — every authenticated
+         *     user reads the whole catalogue and any student can sit any test, with
+         *     admins curating the shelf. This mirrors StudyMaterialViewSet (RBAC rows
+         *     6-7): no publish gate, no per-teacher ownership scope.
+         */
+        patch: operations["mock_tests_templates_partial_update"];
+        trace?: never;
+    };
+    "/api/mock-tests/templates/{id}/attempts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start (or resume) an attempt at this mock test
+         * @description Creates a TestAttempt plus one not_started SectionAttempt per section. Retakes are unlimited, but an unfinished attempt is returned as-is instead of being duplicated — including its mode, which resuming never changes.
+         *
+         *     `mode` is `exam` (sections in the template's order, the real sitting) or `practice` (start with whichever section you like). Defaults to `exam` when the body is omitted.
+         */
+        post: operations["mock_tests_templates_attempts_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/templates/{id}/duplicate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Copy a template into a new, unattempted one
+         * @description Sections and their items are copied; attempts are not. This is the supported way to revise a test that students have already sat — editing one in place is refused so their score reports keep meaning what they said.
+         */
+        post: operations["mock_tests_templates_duplicate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/templates/{id}/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export a template as a portable JSON document
+         * @description Exercises are inlined by content rather than by id, so the document can be imported into another environment where those ids mean nothing. Answer keys are included — this is an admin export, not anything a student may read.
+         */
+        get: operations["mock_tests_templates_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/templates/import/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import one or more exported templates
+         * @description Body is a single export document or a list of them — the bulk path. Each document creates its own exercises, so an import never re-points at content another test already owns.
+         */
+        post: operations["mock_tests_templates_import_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -436,6 +961,113 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/pronunciation/attempts/me/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The current student's attempts across all drills
+         * @description Cross-drill attempt history for the current student. Attempts are always
+         *     scoped to the requesting student (N2: read only your own).
+         */
+        get: operations["pronunciation_attempts_me_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pronunciation/drills/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Pronunciation drills (docs/research/04-pronunciation-practice.md §4.2).
+         *     Any authenticated user browses; teachers/admins author (creator-scoped edit).
+         *     The nested `attempts` action is the record → score → retry loop.
+         */
+        get: operations["pronunciation_drills_list"];
+        put?: never;
+        /**
+         * @description Pronunciation drills (docs/research/04-pronunciation-practice.md §4.2).
+         *     Any authenticated user browses; teachers/admins author (creator-scoped edit).
+         *     The nested `attempts` action is the record → score → retry loop.
+         */
+        post: operations["pronunciation_drills_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pronunciation/drills/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Pronunciation drills (docs/research/04-pronunciation-practice.md §4.2).
+         *     Any authenticated user browses; teachers/admins author (creator-scoped edit).
+         *     The nested `attempts` action is the record → score → retry loop.
+         */
+        get: operations["pronunciation_drills_retrieve"];
+        /**
+         * @description Pronunciation drills (docs/research/04-pronunciation-practice.md §4.2).
+         *     Any authenticated user browses; teachers/admins author (creator-scoped edit).
+         *     The nested `attempts` action is the record → score → retry loop.
+         */
+        put: operations["pronunciation_drills_update"];
+        post?: never;
+        /**
+         * @description Pronunciation drills (docs/research/04-pronunciation-practice.md §4.2).
+         *     Any authenticated user browses; teachers/admins author (creator-scoped edit).
+         *     The nested `attempts` action is the record → score → retry loop.
+         */
+        delete: operations["pronunciation_drills_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Pronunciation drills (docs/research/04-pronunciation-practice.md §4.2).
+         *     Any authenticated user browses; teachers/admins author (creator-scoped edit).
+         *     The nested `attempts` action is the record → score → retry loop.
+         */
+        patch: operations["pronunciation_drills_partial_update"];
+        trace?: never;
+    };
+    "/api/pronunciation/drills/{id}/attempts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List own attempts (GET) or record + score a new one (POST)
+         * @description GET returns the current student's attempt history for this drill (retry loop). POST is multipart/form-data with field `audio`: the server validates size/type, stores the file, runs pronunciation assessment synchronously, and returns the scored attempt (201).
+         */
+        get: operations["pronunciation_drills_attempts_list"];
+        put?: never;
+        /**
+         * List own attempts (GET) or record + score a new one (POST)
+         * @description GET returns the current student's attempt history for this drill (retry loop). POST is multipart/form-data with field `audio`: the server validates size/type, stores the file, runs pronunciation assessment synchronously, and returns the scored attempt (201).
+         */
+        post: operations["pronunciation_drills_attempts_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reports/grades": {
         parameters: {
             query?: never;
@@ -445,6 +1077,52 @@ export interface paths {
         };
         /** Export a class grade report (CSV; PDF deferred) */
         get: operations["reports_grades_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rubrics/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Read-only rubric registry (docs/research/02-scoring-rubrics.md §4.4).
+         *     List shows active templates only; retrieve includes inactive ones so
+         *     historic grades still render against the exact rubric used (NFR2). Readable
+         *     by any authenticated active user — students need the wording for their own
+         *     breakdowns. MVP content is managed via seed_rubrics + Django admin.
+         */
+        get: operations["rubrics_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rubrics/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Read-only rubric registry (docs/research/02-scoring-rubrics.md §4.4).
+         *     List shows active templates only; retrieve includes inactive ones so
+         *     historic grades still render against the exact rubric used (NFR2). Readable
+         *     by any authenticated active user — students need the wording for their own
+         *     breakdowns. MVP content is managed via seed_rubrics + Django admin.
+         */
+        get: operations["rubrics_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -559,6 +1237,26 @@ export interface paths {
          *     row (reviewer=None). Structured to move to an async worker later.
          */
         post: operations["submissions_ai_evaluate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/submissions/{id}/annotations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List inline annotations on a writing submission
+         * @description Same read audience as feedback (can_view_submission_feedback): owner student / class teacher / a teacher who reviewed it / admin. Ordered by start_offset.
+         */
+        get: operations["submissions_annotations_list"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -705,6 +1403,14 @@ export interface components {
             /** Format: date-time */
             timestamp: string;
         };
+        /**
+         * @description * `mean_down_half` - Mean, rounded DOWN to nearest 0.5 (IELTS convention)
+         *     * `mean_nearest_half` - Mean, rounded to nearest 0.5
+         *     * `mean` - Mean (2 decimal places)
+         *     * `sum` - Sum of criterion scores
+         * @enum {string}
+         */
+        AggregationEnum: "mean_down_half" | "mean_nearest_half" | "mean" | "sum";
         AiModel: {
             readonly id: number;
             model_name: string;
@@ -751,8 +1457,29 @@ export interface components {
             /** Format: date-time */
             due_date?: string | null;
         };
+        /**
+         * @description * `in_progress` - In progress
+         *     * `completed` - Completed
+         *     * `abandoned` - Abandoned
+         * @enum {string}
+         */
+        AttemptStatusEnum: "in_progress" | "completed" | "abandoned";
+        AudioUploadResponse: {
+            url: string;
+        };
         /** @enum {unknown} */
         BlankEnum: "";
+        /**
+         * @description * `grammar` - Grammar
+         *     * `vocabulary` - Vocabulary
+         *     * `spelling` - Spelling
+         *     * `coherence` - Coherence
+         *     * `task_response` - Task response
+         *     * `praise` - Praise
+         *     * `other` - Other
+         * @enum {string}
+         */
+        CategoryEnum: "grammar" | "vocabulary" | "spelling" | "coherence" | "task_response" | "praise" | "other";
         Class: {
             readonly id: number;
             class_name: string;
@@ -773,6 +1500,19 @@ export interface components {
             /** Format: date-time */
             readonly joined_at: string;
         };
+        CriterionScore: {
+            readonly id: number;
+            criterion_id: number;
+            /** Format: decimal */
+            score: string;
+            note?: string | null;
+        };
+        CriterionScoreRequest: {
+            criterion_id: number;
+            /** Format: decimal */
+            score: string;
+            note?: string | null;
+        };
         Dashboard: {
             role: string;
             /** Format: date-time */
@@ -788,6 +1528,103 @@ export interface components {
          * @enum {string}
          */
         DifficultyLevelEnum: "beginner" | "intermediate" | "advanced";
+        DocumentExercise: {
+            title: string;
+            exercise_type: string;
+            prompt_text: string;
+            content_text?: string | null;
+            audio_prompt_url?: string | null;
+            questions?: components["schemas"]["DocumentQuestion"][];
+        };
+        DocumentExerciseRequest: {
+            title: string;
+            exercise_type: string;
+            prompt_text: string;
+            content_text?: string | null;
+            audio_prompt_url?: string | null;
+            questions?: components["schemas"]["DocumentQuestionRequest"][];
+        };
+        DocumentItem: {
+            /** @default 0 */
+            order: number;
+            /**
+             * Format: decimal
+             * @default 1.00
+             */
+            weight: string;
+            prep_seconds?: number | null;
+            max_record_seconds?: number | null;
+            exercise: components["schemas"]["DocumentExercise"];
+        };
+        DocumentItemRequest: {
+            /** @default 0 */
+            order: number;
+            /**
+             * Format: decimal
+             * @default 1.00
+             */
+            weight: string;
+            prep_seconds?: number | null;
+            max_record_seconds?: number | null;
+            exercise: components["schemas"]["DocumentExerciseRequest"];
+        };
+        DocumentOption: {
+            text: string;
+            /** @default false */
+            is_correct: boolean;
+            /** @default 0 */
+            order: number;
+        };
+        DocumentOptionRequest: {
+            text: string;
+            /** @default false */
+            is_correct: boolean;
+            /** @default 0 */
+            order: number;
+        };
+        DocumentQuestion: {
+            text: string;
+            /** @default 0 */
+            order: number;
+            max_words?: number | null;
+            options?: components["schemas"]["DocumentOption"][];
+        };
+        DocumentQuestionRequest: {
+            text: string;
+            /** @default 0 */
+            order: number;
+            max_words?: number | null;
+            options?: components["schemas"]["DocumentOptionRequest"][];
+        };
+        DocumentSection: {
+            skill: string;
+            title: string;
+            /** @default 0 */
+            order: number;
+            duration_minutes: number;
+            instructions?: string | null;
+            /** @default free */
+            item_flow: string;
+            items: components["schemas"]["DocumentItem"][];
+        };
+        DocumentSectionRequest: {
+            skill: string;
+            title: string;
+            /** @default 0 */
+            order: number;
+            duration_minutes: number;
+            instructions?: string | null;
+            /** @default free */
+            item_flow: string;
+            items: components["schemas"]["DocumentItemRequest"][];
+        };
+        /**
+         * @description * `word` - Word
+         *     * `sentence` - Sentence
+         *     * `minimal_pair` - Minimal Pair
+         * @enum {string}
+         */
+        DrillTypeEnum: "word" | "sentence" | "minimal_pair";
         EnrollRequest: {
             student_id: number;
         };
@@ -801,6 +1638,7 @@ export interface components {
             audio_prompt_url?: string | null;
             readonly created_by: number;
             readonly questions: components["schemas"]["Question"][];
+            rubric_template_id?: number | null;
             /** Format: date-time */
             readonly created_at: string;
         };
@@ -811,6 +1649,7 @@ export interface components {
             prompt_text: string;
             content_text?: string | null;
             audio_prompt_url?: string | null;
+            rubric_template_id?: number | null;
         };
         Feedback: {
             readonly id: number;
@@ -822,12 +1661,16 @@ export interface components {
             readonly is_ai_generated: boolean;
             /** Format: date-time */
             readonly created_at: string;
+            criterion_scores?: components["schemas"]["CriterionScore"][];
+            readonly rubric_template_id: number | null;
+            readonly rubric_overall: string | null;
         };
         FeedbackRequest: {
             submission_id: number;
             /** Format: decimal */
             score?: string | null;
             comments?: string | null;
+            criterion_scores?: components["schemas"]["CriterionScoreRequest"][];
         };
         /** @description System health snapshot (read-only) — see AdminHealthView. */
         Health: {
@@ -841,6 +1684,12 @@ export interface components {
             /** Format: date-time */
             server_time: string;
         };
+        /**
+         * @description * `free` - All parts available at once
+         *     * `sequential` - One part at a time, no going back
+         * @enum {string}
+         */
+        ItemFlowEnum: "free" | "sequential";
         LearningModule: {
             readonly id: number;
             title: string;
@@ -880,8 +1729,84 @@ export interface components {
             email: string;
             password: string;
         };
+        /**
+         * @description One whole mock test as a self-contained JSON document.
+         *
+         *     ``format_slug`` rather than ``format_id``: the slug is the stable name of an
+         *     exam flavour across environments, an id is not. Import fails loudly if the
+         *     slug is unknown — silently inventing a format would produce a test that
+         *     scores against nothing.
+         */
+        MockTestDocument: {
+            format_slug: string;
+            title: string;
+            description?: string | null;
+            difficulty_level?: string | null;
+            sections: components["schemas"]["DocumentSection"][];
+        };
+        /**
+         * @description One whole mock test as a self-contained JSON document.
+         *
+         *     ``format_slug`` rather than ``format_id``: the slug is the stable name of an
+         *     exam flavour across environments, an id is not. Import fails loudly if the
+         *     slug is unknown — silently inventing a format would produce a test that
+         *     scores against nothing.
+         */
+        MockTestDocumentRequest: {
+            format_slug: string;
+            title: string;
+            description?: string | null;
+            difficulty_level?: string | null;
+            sections: components["schemas"]["DocumentSectionRequest"][];
+        };
+        /**
+         * @description Library + authoring shape. Nested sections/items are writable so an admin
+         *     can POST a whole test in one call (the composition *is* the test — there is
+         *     nothing useful to create without it). No publish flag: every row in the
+         *     library is live for every user.
+         */
+        MockTestTemplate: {
+            readonly id: number;
+            format_id: number;
+            readonly format_slug: string;
+            readonly format_name: string;
+            title: string;
+            description?: string | null;
+            difficulty_level?: (components["schemas"]["DifficultyLevelEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            readonly created_by_id: number;
+            sections?: components["schemas"]["TestSection"][];
+            readonly total_duration_minutes: number;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description Library + authoring shape. Nested sections/items are writable so an admin
+         *     can POST a whole test in one call (the composition *is* the test — there is
+         *     nothing useful to create without it). No publish flag: every row in the
+         *     library is live for every user.
+         */
+        MockTestTemplateRequest: {
+            format_id: number;
+            title: string;
+            description?: string | null;
+            difficulty_level?: (components["schemas"]["DifficultyLevelEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            sections?: components["schemas"]["TestSectionRequest"][];
+        };
+        /**
+         * @description * `exam` - Exam order
+         *     * `practice` - Any order
+         * @enum {string}
+         */
+        ModeEnum: "exam" | "practice";
         /** @enum {unknown} */
         NullEnum: null;
+        /**
+         * @description * `band_average` - Band average
+         *     * `scaled_sum` - Scaled sum
+         *     * `mean_percent` - Mean percent
+         * @enum {string}
+         */
+        OverallStrategyEnum: "band_average" | "scaled_sum" | "mean_percent";
         PatchedAiModelRequest: {
             model_name?: string;
             endpoint_url?: string;
@@ -900,6 +1825,42 @@ export interface components {
             difficulty_level?: (components["schemas"]["DifficultyLevelEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
         };
         /**
+         * @description Library + authoring shape. Nested sections/items are writable so an admin
+         *     can POST a whole test in one call (the composition *is* the test — there is
+         *     nothing useful to create without it). No publish flag: every row in the
+         *     library is live for every user.
+         */
+        PatchedMockTestTemplateRequest: {
+            format_id?: number;
+            title?: string;
+            description?: string | null;
+            difficulty_level?: (components["schemas"]["DifficultyLevelEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            sections?: components["schemas"]["TestSectionRequest"][];
+        };
+        PatchedPronunciationDrillRequest: {
+            target_text?: string;
+            contrast_text?: string | null;
+            phoneme_hint?: string | null;
+            drill_type?: components["schemas"]["DrillTypeEnum"];
+            difficulty_level?: (components["schemas"]["DifficultyLevelEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            module_id?: number | null;
+        };
+        /**
+         * @description Autosave body. The envelope is re-normalized server-side
+         *     (core/mock_tests.py:normalize_draft), so field types stay loose here.
+         */
+        PatchedSectionDraftRequest: {
+            answers?: {
+                [key: string]: unknown;
+            };
+            writing?: {
+                [key: string]: string;
+            };
+            meta?: {
+                [key: string]: unknown;
+            };
+        };
+        /**
          * @description Official study document. ``file_url`` is a plain mock string URL — there
          *     is no real upload backend in this MVP, so clients send/receive a URL string
          *     (same convention as ``Exercise.audio_prompt_url``). ``uploaded_by_id`` is
@@ -910,6 +1871,15 @@ export interface components {
             file_url?: string;
             description?: string | null;
             class_id?: number | null;
+        };
+        PatchedTestFormatRequest: {
+            slug?: string;
+            name?: string;
+            version?: string;
+            overall_strategy?: components["schemas"]["OverallStrategyEnum"];
+            /** Format: decimal */
+            score_precision?: string;
+            is_active?: boolean;
         };
         PatchedUserRequest: {
             /** Format: email */
@@ -927,6 +1897,15 @@ export interface components {
             avatar_url?: string | null;
             status?: components["schemas"]["Status36eEnum"];
         };
+        PatchedWritingAnnotationRequest: {
+            submission_id?: number;
+            start_offset?: number;
+            end_offset?: number;
+            quoted_text?: string;
+            category?: components["schemas"]["CategoryEnum"];
+            comment?: string;
+            suggested_correction?: string | null;
+        };
         Progress: {
             readonly id: number;
             readonly student_id: number;
@@ -941,11 +1920,64 @@ export interface components {
             /** Format: decimal */
             completion_percentage: string;
         };
+        /**
+         * @description Read-mostly. The create path takes only the uploaded file (drill from the
+         *     URL, student from auth), so no writable fields are exposed here.
+         */
+        PronunciationAttempt: {
+            readonly id: number;
+            readonly drill_id: number;
+            readonly student_id: number;
+            readonly audio_url: string | null;
+            /** Format: decimal */
+            readonly overall_score: string | null;
+            /** Format: decimal */
+            readonly accuracy_score: string | null;
+            /** Format: decimal */
+            readonly fluency_score: string | null;
+            /** Format: decimal */
+            readonly completeness_score: string | null;
+            /** Format: decimal */
+            readonly prosody_score: string | null;
+            readonly word_results: unknown;
+            readonly engine: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description Multipart upload body for a new attempt — a single audio file. Documented
+         *     separately so drf-spectacular emits a multipart request schema.
+         */
+        PronunciationAttemptCreateRequest: {
+            /** Format: binary */
+            audio: string;
+        };
+        PronunciationDrill: {
+            readonly id: number;
+            target_text: string;
+            contrast_text?: string | null;
+            phoneme_hint?: string | null;
+            drill_type: components["schemas"]["DrillTypeEnum"];
+            difficulty_level?: (components["schemas"]["DifficultyLevelEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            module_id?: number | null;
+            readonly created_by_id: number;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        PronunciationDrillRequest: {
+            target_text: string;
+            contrast_text?: string | null;
+            phoneme_hint?: string | null;
+            drill_type: components["schemas"]["DrillTypeEnum"];
+            difficulty_level?: (components["schemas"]["DifficultyLevelEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            module_id?: number | null;
+        };
         Question: {
             readonly id: number;
             exercise_id: number;
             text: string;
             order?: number;
+            max_words?: number | null;
             readonly options: components["schemas"]["QuestionOption"][];
             /** Format: date-time */
             readonly created_at: string;
@@ -965,6 +1997,7 @@ export interface components {
             exercise_id: number;
             text: string;
             order?: number;
+            max_words?: number | null;
         };
         RegisterRequest: {
             /** Format: email */
@@ -980,6 +2013,146 @@ export interface components {
          * @enum {string}
          */
         RegisterRoleEnum: "student" | "teacher";
+        RubricBandDescriptor: {
+            readonly id: number;
+            /** Format: decimal */
+            band_value: string;
+            label?: string;
+            descriptor: string;
+        };
+        RubricCriterion: {
+            readonly id: number;
+            name: string;
+            code: string;
+            description?: string | null;
+            /** Format: decimal */
+            weight?: string;
+            order?: number;
+            readonly band_descriptors: components["schemas"]["RubricBandDescriptor"][];
+        };
+        RubricTemplate: {
+            readonly id: number;
+            name: string;
+            slug: string;
+            description?: string | null;
+            exercise_type: components["schemas"]["SkillTypeEnum"];
+            is_default_for_type?: boolean;
+            /** Format: decimal */
+            scale_min?: string;
+            /** Format: decimal */
+            scale_max?: string;
+            /** Format: decimal */
+            score_step?: string;
+            aggregation?: components["schemas"]["AggregationEnum"];
+            is_active?: boolean;
+            readonly criteria: components["schemas"]["RubricCriterion"][];
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        ScoreConversionTable: {
+            readonly id: number;
+            readonly format_id: number;
+            skill: components["schemas"]["SkillEnum"];
+            mapping: unknown;
+            source_note?: string | null;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        ScoreConversionTableRequest: {
+            skill: components["schemas"]["SkillEnum"];
+            mapping: unknown;
+            source_note?: string | null;
+        };
+        /** @description Body for closing one part of a sequential section. */
+        SectionAdvanceRequest: {
+            exercise_id: number;
+        };
+        /**
+         * @description One section of a live attempt. Exercises are inlined with the
+         *     answer-blind serializer so the runner never has to call
+         *     /api/exercises/{id}/ (which exposes the answer key).
+         */
+        SectionAttempt: {
+            readonly id: number;
+            readonly section_id: number;
+            readonly skill: string;
+            readonly title: string;
+            readonly order: number;
+            readonly duration_minutes: number;
+            readonly instructions: string;
+            readonly item_flow: string;
+            readonly open_exercise_ids: number[];
+            readonly status: components["schemas"]["SectionStatusEnum"];
+            /** Format: date-time */
+            readonly started_at: string | null;
+            /** Format: date-time */
+            readonly expires_at: string | null;
+            /** Format: date-time */
+            readonly completed_at: string | null;
+            readonly draft_answers: unknown;
+            readonly raw_score: number | null;
+            readonly raw_max: number | null;
+            /** Format: decimal */
+            readonly converted_score: string | null;
+            readonly exercises: components["schemas"]["TestRunnerExercise"][];
+        };
+        /**
+         * @description Autosave body. The envelope is re-normalized server-side
+         *     (core/mock_tests.py:normalize_draft), so field types stay loose here.
+         */
+        SectionDraftRequest: {
+            answers?: {
+                [key: string]: unknown;
+            };
+            writing?: {
+                [key: string]: string;
+            };
+            meta?: {
+                [key: string]: unknown;
+            };
+        };
+        /** @description One row of the score report (read-only projection, not a model). */
+        SectionScore: {
+            section_attempt_id: number;
+            section_id: number;
+            title: string;
+            skill: string;
+            status: string;
+            raw_score: number | null;
+            raw_max: number | null;
+            /** Format: decimal */
+            converted_score: string | null;
+            pending_grading: boolean;
+            submission_ids: number[];
+        };
+        /**
+         * @description * `not_started` - Not started
+         *     * `in_progress` - In progress
+         *     * `completed` - Completed
+         * @enum {string}
+         */
+        SectionStatusEnum: "not_started" | "in_progress" | "completed";
+        /**
+         * @description Submit body: an optional final draft flush plus speaking recordings.
+         *
+         *     Recordings are attached only here, never autosaved — base64 data URLs would
+         *     bloat every draft write (frontend doc risk 4).
+         */
+        SectionSubmitRequest: {
+            draft?: components["schemas"]["SectionDraftRequest"];
+            /** @description exercise_id -> audio recording URL / data URL */
+            recordings?: {
+                [key: string]: string;
+            };
+        };
+        /**
+         * @description * `listening` - Listening
+         *     * `reading` - Reading
+         *     * `writing` - Writing
+         *     * `speaking` - Speaking
+         * @enum {string}
+         */
+        SkillEnum: "listening" | "reading" | "writing" | "speaking";
         /**
          * @description * `writing` - Writing
          *     * `speaking` - Speaking
@@ -1086,6 +2259,177 @@ export interface components {
             audio_recording_url?: string | null;
             answers?: unknown;
         };
+        /**
+         * @description Attempt detail — the single source the runner resumes from.
+         *     ``server_time`` lets the client correct its own clock skew instead of
+         *     trusting `Date.now()` (research doc N3).
+         */
+        TestAttempt: {
+            readonly id: number;
+            readonly template_id: number;
+            readonly template_title: string;
+            readonly format_slug: string;
+            readonly student_id: number;
+            readonly status: components["schemas"]["AttemptStatusEnum"];
+            readonly mode: components["schemas"]["ModeEnum"];
+            /** Format: date-time */
+            readonly started_at: string;
+            /** Format: date-time */
+            readonly completed_at: string | null;
+            /** Format: decimal */
+            readonly overall_score: string | null;
+            readonly sections: components["schemas"]["SectionAttempt"][];
+            /** Format: date-time */
+            readonly server_time: string;
+        };
+        /**
+         * @description Body for starting an attempt. ``exam`` by default, so a client that says
+         *     nothing gets the real sitting rather than the relaxed one.
+         */
+        TestAttemptCreateRequest: {
+            /**
+             * @description `exam` takes sections in the template's order; `practice` lets the student start with any section. Fixed once the attempt exists.
+             *
+             *     * `exam` - Exam order
+             *     * `practice` - Any order
+             * @default exam
+             */
+            mode: components["schemas"]["ModeEnum"];
+        };
+        /**
+         * @description Lightweight row for the catalog's "my attempts" list and resume banner —
+         *     no section payloads, just the two counts a progress bar needs. Sending the
+         *     sections themselves would mean shipping every passage to render a bar.
+         */
+        TestAttemptList: {
+            readonly id: number;
+            readonly template_id: number;
+            readonly template_title: string;
+            readonly format_slug: string;
+            readonly status: components["schemas"]["AttemptStatusEnum"];
+            readonly mode: components["schemas"]["ModeEnum"];
+            /** Format: date-time */
+            readonly started_at: string;
+            /** Format: date-time */
+            readonly completed_at: string | null;
+            /** Format: decimal */
+            readonly overall_score: string | null;
+            readonly sections_total: number;
+            readonly sections_completed: number;
+        };
+        TestAttemptReport: {
+            attempt_id: number;
+            template_id: number;
+            template_title: string;
+            format: string;
+            status: string;
+            /** Format: decimal */
+            overall_score: string | null;
+            partial: boolean;
+            estimated: boolean;
+            /** Format: date-time */
+            started_at: string;
+            /** Format: date-time */
+            completed_at: string | null;
+            sections: components["schemas"]["SectionScore"][];
+            /** Format: date-time */
+            server_time: string;
+        };
+        TestFormat: {
+            readonly id: number;
+            slug: string;
+            name: string;
+            version?: string;
+            overall_strategy: components["schemas"]["OverallStrategyEnum"];
+            /** Format: decimal */
+            score_precision?: string;
+            is_active?: boolean;
+        };
+        TestFormatRequest: {
+            slug: string;
+            name: string;
+            version?: string;
+            overall_strategy: components["schemas"]["OverallStrategyEnum"];
+            /** Format: decimal */
+            score_precision?: string;
+            is_active?: boolean;
+        };
+        /**
+         * @description One part of a live section. Per-part timing comes from the section's
+         *     ``TestSectionExercise`` row, handed in through ``context["items"]`` as
+         *     ``{exercise_id: TestSectionExercise}``, so the runner gets a flat payload
+         *     instead of having to join the composition table itself.
+         */
+        TestRunnerExercise: {
+            readonly id: number;
+            title: string;
+            exercise_type: components["schemas"]["SkillTypeEnum"];
+            prompt_text: string;
+            content_text?: string | null;
+            audio_prompt_url?: string | null;
+            readonly questions: components["schemas"]["TestRunnerQuestion"][];
+            readonly prep_seconds: number | null;
+            readonly max_record_seconds: number | null;
+        };
+        TestRunnerOption: {
+            readonly id: number;
+            text: string;
+            order?: number;
+        };
+        TestRunnerQuestion: {
+            readonly id: number;
+            readonly text: string;
+            order?: number;
+            max_words?: number | null;
+            readonly options: components["schemas"]["TestRunnerOption"][];
+        };
+        TestSection: {
+            readonly id: number;
+            skill: components["schemas"]["SkillEnum"];
+            title: string;
+            order?: number;
+            duration_minutes: number;
+            instructions?: string | null;
+            item_flow?: components["schemas"]["ItemFlowEnum"];
+            items?: components["schemas"]["TestSectionExercise"][];
+        };
+        /**
+         * @description Authoring view of a section item — the exercise id plus enough metadata
+         *     to render a template outline without fetching every exercise.
+         */
+        TestSectionExercise: {
+            readonly id: number;
+            exercise_id: number;
+            readonly exercise_title: string;
+            readonly exercise_type: string;
+            readonly question_count: number;
+            order?: number;
+            /** Format: decimal */
+            weight?: string;
+            prep_seconds?: number | null;
+            max_record_seconds?: number | null;
+        };
+        /**
+         * @description Authoring view of a section item — the exercise id plus enough metadata
+         *     to render a template outline without fetching every exercise.
+         */
+        TestSectionExerciseRequest: {
+            exercise_id: number;
+            order?: number;
+            /** Format: decimal */
+            weight?: string;
+            prep_seconds?: number | null;
+            max_record_seconds?: number | null;
+        };
+        TestSectionRequest: {
+            skill: components["schemas"]["SkillEnum"];
+            title: string;
+            order?: number;
+            duration_minutes: number;
+            instructions?: string | null;
+            item_flow?: components["schemas"]["ItemFlowEnum"];
+            items?: components["schemas"]["TestSectionExerciseRequest"][];
+        };
         TokenObtainPair: {
             readonly access: string;
             readonly refresh: string;
@@ -1141,6 +2485,31 @@ export interface components {
             full_name?: string;
             avatar_url?: string | null;
             status?: components["schemas"]["Status36eEnum"];
+        };
+        WritingAnnotation: {
+            readonly id: number;
+            submission_id: number;
+            readonly author_id: number;
+            start_offset: number;
+            end_offset: number;
+            quoted_text: string;
+            category?: components["schemas"]["CategoryEnum"];
+            comment: string;
+            suggested_correction?: string | null;
+            readonly is_acknowledged: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        WritingAnnotationRequest: {
+            submission_id: number;
+            start_offset: number;
+            end_offset: number;
+            quoted_text: string;
+            category?: components["schemas"]["CategoryEnum"];
+            comment: string;
+            suggested_correction?: string | null;
         };
     };
     responses: never;
@@ -1331,6 +2700,130 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AiModel"];
+                };
+            };
+        };
+    };
+    annotations_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WritingAnnotationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["WritingAnnotationRequest"];
+                "multipart/form-data": components["schemas"]["WritingAnnotationRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WritingAnnotation"];
+                };
+            };
+        };
+    };
+    annotations_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this writing annotation. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WritingAnnotationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["WritingAnnotationRequest"];
+                "multipart/form-data": components["schemas"]["WritingAnnotationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WritingAnnotation"];
+                };
+            };
+        };
+    };
+    annotations_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this writing annotation. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    annotations_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this writing annotation. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedWritingAnnotationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedWritingAnnotationRequest"];
+                "multipart/form-data": components["schemas"]["PatchedWritingAnnotationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WritingAnnotation"];
+                };
+            };
+        };
+    };
+    annotations_acknowledge_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this writing annotation. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WritingAnnotation"];
                 };
             };
         };
@@ -1868,6 +3361,28 @@ export interface operations {
             };
         };
     };
+    exercises_rubric_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this exercise. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RubricTemplate"];
+                };
+            };
+        };
+    };
     exercises_submissions_list: {
         parameters: {
             query?: never;
@@ -1911,6 +3426,675 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Feedback"];
+                };
+            };
+        };
+    };
+    media_audio_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    audio: string;
+                    attempt_id?: number;
+                    exercise_id?: number;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AudioUploadResponse"];
+                };
+            };
+            /** @description Missing, oversized, or too-long audio */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mock_tests_attempts_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this test attempt. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestAttempt"];
+                };
+            };
+        };
+    };
+    mock_tests_attempts_report_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this test attempt. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestAttemptReport"];
+                };
+            };
+        };
+    };
+    mock_tests_attempts_sections_advance_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this test attempt. */
+                id: number;
+                section_attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SectionAdvanceRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SectionAdvanceRequest"];
+                "multipart/form-data": components["schemas"]["SectionAdvanceRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SectionAttempt"];
+                };
+            };
+        };
+    };
+    mock_tests_attempts_sections_answers_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this test attempt. */
+                id: number;
+                section_attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedSectionDraftRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedSectionDraftRequest"];
+                "multipart/form-data": components["schemas"]["PatchedSectionDraftRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SectionAttempt"];
+                };
+            };
+            /** @description Section expired (code: section_expired) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mock_tests_attempts_sections_start_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this test attempt. */
+                id: number;
+                section_attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SectionAttempt"];
+                };
+            };
+        };
+    };
+    mock_tests_attempts_sections_submit_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this test attempt. */
+                id: number;
+                section_attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SectionSubmitRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SectionSubmitRequest"];
+                "multipart/form-data": components["schemas"]["SectionSubmitRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SectionAttempt"];
+                };
+            };
+        };
+    };
+    mock_tests_attempts_me_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestAttemptList"][];
+                };
+            };
+        };
+    };
+    mock_tests_formats_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestFormat"][];
+                };
+            };
+        };
+    };
+    mock_tests_formats_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestFormatRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TestFormatRequest"];
+                "multipart/form-data": components["schemas"]["TestFormatRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestFormat"];
+                };
+            };
+        };
+    };
+    mock_tests_formats_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this test format. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestFormat"];
+                };
+            };
+        };
+    };
+    mock_tests_formats_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this test format. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestFormatRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TestFormatRequest"];
+                "multipart/form-data": components["schemas"]["TestFormatRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestFormat"];
+                };
+            };
+        };
+    };
+    mock_tests_formats_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this test format. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mock_tests_formats_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this test format. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedTestFormatRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedTestFormatRequest"];
+                "multipart/form-data": components["schemas"]["PatchedTestFormatRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestFormat"];
+                };
+            };
+        };
+    };
+    mock_tests_formats_conversions_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this test format. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScoreConversionTable"][];
+                };
+            };
+            /** @description Admin only */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mock_tests_formats_conversions_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this test format. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScoreConversionTableRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ScoreConversionTableRequest"];
+                "multipart/form-data": components["schemas"]["ScoreConversionTableRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScoreConversionTable"][];
+                };
+            };
+            /** @description Admin only */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mock_tests_templates_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MockTestTemplate"][];
+                };
+            };
+        };
+    };
+    mock_tests_templates_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MockTestTemplateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MockTestTemplateRequest"];
+                "multipart/form-data": components["schemas"]["MockTestTemplateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MockTestTemplate"];
+                };
+            };
+        };
+    };
+    mock_tests_templates_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this mock test template. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MockTestTemplate"];
+                };
+            };
+        };
+    };
+    mock_tests_templates_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this mock test template. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MockTestTemplateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MockTestTemplateRequest"];
+                "multipart/form-data": components["schemas"]["MockTestTemplateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MockTestTemplate"];
+                };
+            };
+        };
+    };
+    mock_tests_templates_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this mock test template. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mock_tests_templates_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this mock test template. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedMockTestTemplateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMockTestTemplateRequest"];
+                "multipart/form-data": components["schemas"]["PatchedMockTestTemplateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MockTestTemplate"];
+                };
+            };
+        };
+    };
+    mock_tests_templates_attempts_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this mock test template. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["TestAttemptCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TestAttemptCreateRequest"];
+                "multipart/form-data": components["schemas"]["TestAttemptCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestAttempt"];
+                };
+            };
+            /** @description Template has no sections */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mock_tests_templates_duplicate_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this mock test template. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MockTestTemplate"];
+                };
+            };
+        };
+    };
+    mock_tests_templates_export_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this mock test template. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MockTestDocument"];
+                };
+            };
+        };
+    };
+    mock_tests_templates_import_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MockTestDocumentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MockTestDocumentRequest"];
+                "multipart/form-data": components["schemas"]["MockTestDocumentRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MockTestTemplate"][];
                 };
             };
         };
@@ -2168,6 +4352,235 @@ export interface operations {
             };
         };
     };
+    pronunciation_attempts_me_list: {
+        parameters: {
+            query?: {
+                /** @description Filter to a single drill */
+                drill_id?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PronunciationAttempt"][];
+                };
+            };
+        };
+    };
+    pronunciation_drills_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PronunciationDrill"][];
+                };
+            };
+        };
+    };
+    pronunciation_drills_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PronunciationDrillRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PronunciationDrillRequest"];
+                "multipart/form-data": components["schemas"]["PronunciationDrillRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PronunciationDrill"];
+                };
+            };
+        };
+    };
+    pronunciation_drills_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this pronunciation drill. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PronunciationDrill"];
+                };
+            };
+        };
+    };
+    pronunciation_drills_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this pronunciation drill. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PronunciationDrillRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PronunciationDrillRequest"];
+                "multipart/form-data": components["schemas"]["PronunciationDrillRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PronunciationDrill"];
+                };
+            };
+        };
+    };
+    pronunciation_drills_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this pronunciation drill. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    pronunciation_drills_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this pronunciation drill. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedPronunciationDrillRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedPronunciationDrillRequest"];
+                "multipart/form-data": components["schemas"]["PatchedPronunciationDrillRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PronunciationDrill"];
+                };
+            };
+        };
+    };
+    pronunciation_drills_attempts_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this pronunciation drill. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PronunciationAttempt"][];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PronunciationAttempt"];
+                };
+            };
+        };
+    };
+    pronunciation_drills_attempts_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this pronunciation drill. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["PronunciationAttemptCreateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PronunciationAttempt"][];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PronunciationAttempt"];
+                };
+            };
+        };
+    };
     reports_grades_retrieve: {
         parameters: {
             query: {
@@ -2210,6 +4623,47 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    rubrics_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RubricTemplate"][];
+                };
+            };
+        };
+    };
+    rubrics_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this rubric template. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RubricTemplate"];
+                };
             };
         };
     };
@@ -2400,6 +4854,35 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Feedback"];
                 };
+            };
+        };
+    };
+    submissions_annotations_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this submission. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WritingAnnotation"][];
+                };
+            };
+            /** @description Not permitted to view this submission */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
