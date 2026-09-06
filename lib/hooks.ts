@@ -13,6 +13,7 @@ import type {
   ClassRequest,
   ExerciseRequest,
   FeedbackRequest,
+  FeedbackReviewRequest,
   LearningModuleRequest,
   LessonPlanRequest,
   SubmissionRequest,
@@ -282,6 +283,25 @@ export function useAiPractice() {
   return useMutation({
     mutationFn: api.aiPractice,
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.mySubmissions }),
+  });
+}
+export function useMistakeExplanation(id: number) {
+  return useQuery({
+    queryKey: qk.mistakeExplanation(id),
+    queryFn: () => api.getMistakeExplanation(id),
+    enabled: Number.isFinite(id),
+  });
+}
+export function useGenerateMistakeExplanation(submissionId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.generateMistakeExplanation(submissionId),
+    onSuccess: (data) => qc.setQueryData(qk.mistakeExplanation(submissionId), data),
+  });
+}
+export function useAiReviewFeedback(submissionId: number) {
+  return useMutation({
+    mutationFn: (body: FeedbackReviewRequest) => api.aiReviewFeedback(submissionId, body),
   });
 }
 export function useAiEvaluate(submissionId: number) {

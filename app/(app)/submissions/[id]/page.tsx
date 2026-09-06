@@ -32,6 +32,8 @@ import { RubricBreakdown } from "@/components/rubric/RubricBreakdown";
 import { AnnotationProvider } from "@/components/annotations/AnnotationContext";
 import { AnnotatedText } from "@/components/annotations/AnnotatedText";
 import { AnnotationSidebar } from "@/components/annotations/AnnotationSidebar";
+import { MistakeExplanationCard } from "@/components/ai/MistakeExplanationCard";
+import { FeedbackReviewPanel } from "@/components/ai/FeedbackReviewPanel";
 import { dateLabel, formatScore, timeAgo, submissionStatusLabel } from "@/lib/format";
 import { ApiError } from "@/lib/api";
 
@@ -111,6 +113,10 @@ function StudentSubmissionDetail() {
         <AnnotationSidebar submissionId={id} annotations={anns} readOnly />
       )}
 
+      {(isWriting || !!submission.answers) && (
+        <MistakeExplanationCard submissionId={id} />
+      )}
+
       {feedback.isLoading ? (
         <Skeleton className="h-24 w-full" />
       ) : fbs.length > 0 ? (
@@ -178,6 +184,8 @@ function TeacherGradingScreen() {
     register,
     handleSubmit,
     reset,
+    getValues,
+    setValue,
     formState: { errors },
   } = useForm<GradeForm>({
     defaultValues: { score: "", comments: "" },
@@ -281,6 +289,10 @@ function TeacherGradingScreen() {
               <p className="text-sm text-zinc-400">No content submitted.</p>
             )}
           </Card>
+
+          {(isWriting || !!submission.answers) && (
+            <MistakeExplanationCard submissionId={id} />
+          )}
         </div>
 
         {/* Right column: Annotations sidebar, Feedback history & Grading Form */}
@@ -379,6 +391,18 @@ function TeacherGradingScreen() {
                 {...register("comments", {
                   required: "Comments are required",
                 })}
+              />
+
+              <FeedbackReviewPanel
+                submissionId={id}
+                getDraft={() => {
+                  const { score, comments } = getValues();
+                  if (!comments.trim() && !score) return null;
+                  return { score: score ? score : null, comments };
+                }}
+                onUseSuggestion={(text) =>
+                  setValue("comments", text, { shouldDirty: true, shouldValidate: true })
+                }
               />
 
               <Button

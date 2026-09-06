@@ -22,6 +22,9 @@ import type {
   SubmissionRequest,
   Feedback,
   FeedbackRequest,
+  FeedbackReview,
+  FeedbackReviewRequest,
+  AiInsight,
   Progress,
   StudyMaterial,
   StudyMaterialRequest,
@@ -418,6 +421,29 @@ export function listSubmissionsInbox(params?: {
 // AI evaluation (teacher/admin triggers AI grading on an existing submission)
 export function aiEvaluateSubmission(id: number): Promise<Feedback> {
   return apiFetch<Feedback>(`/api/submissions/${id}/ai-evaluate/`, { method: "POST" });
+}
+
+// AI coaching (core/ai/assist.py). Draft review is stateless; the mistake
+// explanation is stored server-side (GET newest / POST regenerate).
+export function aiReviewFeedback(
+  submissionId: number,
+  body: FeedbackReviewRequest,
+): Promise<FeedbackReview> {
+  return apiFetch<FeedbackReview>(`/api/submissions/${submissionId}/ai-review-feedback/`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+export async function getMistakeExplanation(submissionId: number): Promise<AiInsight | null> {
+  try {
+    return await apiFetch<AiInsight>(`/api/submissions/${submissionId}/ai-explain/`);
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) return null;
+    throw err;
+  }
+}
+export function generateMistakeExplanation(submissionId: number): Promise<AiInsight> {
+  return apiFetch<AiInsight>(`/api/submissions/${submissionId}/ai-explain/`, { method: "POST" });
 }
 
 // AI practice (student): returns { submission, feedback }
