@@ -8,15 +8,15 @@ import {
   Card,
   EmptyState,
   ErrorState,
+  FilterChips,
   PageHeader,
   ProgressBar,
   RolePlaceholder,
   Skeleton,
   TextField,
 } from "@/components/ui";
-import { cn } from "@/lib/cn";
-import { parseDecimal } from "@/lib/format";
-import type { DifficultyLevel } from "@/lib/types";
+import { bandLabel, parseDecimal } from "@/lib/format";
+import { BAND_LEVELS, TOPICS, type BandLevel, type DifficultyLevel, type Topic } from "@/lib/types";
 
 const DIFFICULTIES: (DifficultyLevel | "all")[] = [
   "all",
@@ -24,6 +24,9 @@ const DIFFICULTIES: (DifficultyLevel | "all")[] = [
   "intermediate",
   "advanced",
 ];
+
+const BANDS: (BandLevel | "all")[] = ["all", ...BAND_LEVELS];
+const TOPIC_CHIPS: (Topic | "all")[] = ["all", ...TOPICS];
 
 export default function ModulesPage() {
   const { role } = useAuth();
@@ -41,6 +44,8 @@ function ModuleCatalog() {
   const progress = useMyProgress();
   const [q, setQ] = useState("");
   const [diff, setDiff] = useState<(typeof DIFFICULTIES)[number]>("all");
+  const [band, setBand] = useState<(typeof BANDS)[number]>("all");
+  const [topic, setTopic] = useState<(typeof TOPIC_CHIPS)[number]>("all");
 
   const progressByModule = useMemo(() => {
     const map = new Map<number, number>();
@@ -54,9 +59,11 @@ function ModuleCatalog() {
     return (modules.data ?? []).filter((m) => {
       const matchQ = m.title.toLowerCase().includes(q.toLowerCase());
       const matchD = diff === "all" || m.difficulty_level === diff;
-      return matchQ && matchD;
+      const matchB = band === "all" || m.band === band;
+      const matchT = topic === "all" || m.topic === topic;
+      return matchQ && matchD && matchB && matchT;
     });
-  }, [modules.data, q, diff]);
+  }, [modules.data, q, diff, band, topic]);
 
   return (
     <div className="space-y-4">
@@ -69,23 +76,19 @@ function ModuleCatalog() {
         value={q}
         onChange={(e) => setQ(e.target.value)}
       />
-      <div className="flex flex-wrap gap-2">
-        {DIFFICULTIES.map((d) => (
-          <button
-            key={d}
-            type="button"
-            onClick={() => setDiff(d)}
-            className={cn(
-              "rounded-full border px-3 py-1 text-xs capitalize",
-              diff === d
-                ? "border-accent bg-accent/10 text-accent"
-                : "border-zinc-300 text-zinc-600",
-            )}
-          >
-            {d}
-          </button>
-        ))}
-      </div>
+      <FilterChips options={DIFFICULTIES} value={diff} onChange={setDiff} label={(d) => d} />
+      <FilterChips
+        options={BANDS}
+        value={band}
+        onChange={setBand}
+        label={(b) => (b === "all" ? "all bands" : bandLabel(b))}
+      />
+      <FilterChips
+        options={TOPIC_CHIPS}
+        value={topic}
+        onChange={setTopic}
+        label={(t) => (t === "all" ? "all topics" : t)}
+      />
 
       {modules.isLoading ? (
         <div className="space-y-2">
@@ -110,6 +113,12 @@ function ModuleCatalog() {
                       <Badge kind={m.difficulty_level}>{m.difficulty_level}</Badge>
                     )}
                   </div>
+                  {(m.band || m.topic) && (
+                    <div className="flex flex-wrap gap-1">
+                      {m.band && <Badge kind="band">{bandLabel(m.band)}</Badge>}
+                      {m.topic && <Badge kind={m.topic}>{m.topic}</Badge>}
+                    </div>
+                  )}
                   {m.description && (
                     <p className="line-clamp-2 text-sm text-zinc-500">{m.description}</p>
                   )}

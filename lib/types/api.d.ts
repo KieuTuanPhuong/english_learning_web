@@ -479,6 +479,71 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/meetings/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description 1:1 WebRTC meeting rooms. Create/end is teacher-side; students of the
+         *     class can list and retrieve (join happens over the signaling socket).
+         */
+        get: operations["meetings_list"];
+        put?: never;
+        /**
+         * @description 1:1 WebRTC meeting rooms. Create/end is teacher-side; students of the
+         *     class can list and retrieve (join happens over the signaling socket).
+         */
+        post: operations["meetings_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/meetings/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description 1:1 WebRTC meeting rooms. Create/end is teacher-side; students of the
+         *     class can list and retrieve (join happens over the signaling socket).
+         */
+        get: operations["meetings_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/meetings/{id}/end/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * End a meeting (teacher/admin)
+         * @description 1:1 WebRTC meeting rooms. Create/end is teacher-side; students of the
+         *     class can list and retrieve (join happens over the signaling socket).
+         */
+        post: operations["meetings_end_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/mock-tests/attempts/{id}/": {
         parameters: {
             query?: never;
@@ -881,6 +946,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** List modules, filterable by band and topic */
         get: operations["modules_list"];
         put?: never;
         post: operations["modules_create"];
@@ -1467,6 +1533,15 @@ export interface components {
         AudioUploadResponse: {
             url: string;
         };
+        /**
+         * @description * `band_4_5` - Band 4–5
+         *     * `band_5_6` - Band 5–6
+         *     * `band_6_7` - Band 6–7
+         *     * `band_7_8` - Band 7–8
+         *     * `band_8_9` - Band 8–9
+         * @enum {string}
+         */
+        BandEnum: "band_4_5" | "band_5_6" | "band_6_7" | "band_7_8" | "band_8_9";
         /** @enum {unknown} */
         BlankEnum: "";
         /**
@@ -1633,6 +1708,8 @@ export interface components {
             module_id?: number | null;
             title: string;
             exercise_type: components["schemas"]["SkillTypeEnum"];
+            band?: (components["schemas"]["BandEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            topic?: (components["schemas"]["TopicEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             prompt_text: string;
             content_text?: string | null;
             audio_prompt_url?: string | null;
@@ -1646,6 +1723,8 @@ export interface components {
             module_id?: number | null;
             title: string;
             exercise_type: components["schemas"]["SkillTypeEnum"];
+            band?: (components["schemas"]["BandEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            topic?: (components["schemas"]["TopicEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             prompt_text: string;
             content_text?: string | null;
             audio_prompt_url?: string | null;
@@ -1695,6 +1774,8 @@ export interface components {
             title: string;
             description?: string | null;
             difficulty_level?: (components["schemas"]["DifficultyLevelEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            band?: (components["schemas"]["BandEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            topic?: (components["schemas"]["TopicEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             readonly created_by: number;
             /** Format: date-time */
             readonly created_at: string;
@@ -1703,6 +1784,8 @@ export interface components {
             title: string;
             description?: string | null;
             difficulty_level?: (components["schemas"]["DifficultyLevelEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            band?: (components["schemas"]["BandEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            topic?: (components["schemas"]["TopicEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
         };
         LessonPlan: {
             readonly id: number;
@@ -1729,6 +1812,29 @@ export interface components {
             email: string;
             password: string;
         };
+        Meeting: {
+            readonly id: number;
+            class_id: number;
+            readonly class_name: string;
+            title: string;
+            readonly status: components["schemas"]["MeetingStatusEnum"];
+            readonly created_by: number;
+            readonly created_by_name: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly ended_at: string | null;
+        };
+        MeetingRequest: {
+            class_id: number;
+            title: string;
+        };
+        /**
+         * @description * `active` - Active
+         *     * `ended` - Ended
+         * @enum {string}
+         */
+        MeetingStatusEnum: "active" | "ended";
         /**
          * @description One whole mock test as a self-contained JSON document.
          *
@@ -1823,6 +1929,8 @@ export interface components {
             title?: string;
             description?: string | null;
             difficulty_level?: (components["schemas"]["DifficultyLevelEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            band?: (components["schemas"]["BandEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
+            topic?: (components["schemas"]["TopicEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
         };
         /**
          * @description Library + authoring shape. Nested sections/items are writable so an admin
@@ -2450,6 +2558,19 @@ export interface components {
         TokenRefreshRequest: {
             refresh: string;
         };
+        /**
+         * @description * `life` - Life
+         *     * `sports` - Sports
+         *     * `education` - Education
+         *     * `work` - Work
+         *     * `travel` - Travel
+         *     * `environment` - Environment
+         *     * `technology` - Technology
+         *     * `health` - Health
+         *     * `culture` - Culture
+         * @enum {string}
+         */
+        TopicEnum: "life" | "sports" | "education" | "work" | "travel" | "environment" | "technology" | "health" | "culture";
         User: {
             readonly id: number;
             /** Format: email */
@@ -3465,6 +3586,94 @@ export interface operations {
             };
         };
     };
+    meetings_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meeting"][];
+                };
+            };
+        };
+    };
+    meetings_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeetingRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MeetingRequest"];
+                "multipart/form-data": components["schemas"]["MeetingRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meeting"];
+                };
+            };
+        };
+    };
+    meetings_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this meeting. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meeting"];
+                };
+            };
+        };
+    };
+    meetings_end_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this meeting. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meeting"];
+                };
+            };
+        };
+    };
     mock_tests_attempts_retrieve: {
         parameters: {
             query?: never;
@@ -4101,7 +4310,12 @@ export interface operations {
     };
     modules_list: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Filter by target band range (e.g. band_5_6) */
+                band?: "band_4_5" | "band_5_6" | "band_6_7" | "band_7_8" | "band_8_9";
+                /** @description Filter by topic (e.g. life, sports) */
+                topic?: "culture" | "education" | "environment" | "health" | "life" | "sports" | "technology" | "travel" | "work";
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -4244,7 +4458,12 @@ export interface operations {
     };
     modules_exercises_list: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Filter by target band range (GET only) */
+                band?: "band_4_5" | "band_5_6" | "band_6_7" | "band_7_8" | "band_8_9";
+                /** @description Filter by topic (GET only) */
+                topic?: "culture" | "education" | "environment" | "health" | "life" | "sports" | "technology" | "travel" | "work";
+            };
             header?: never;
             path: {
                 /** @description A unique integer value identifying this learning module. */
@@ -4274,7 +4493,12 @@ export interface operations {
     };
     modules_exercises_create: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Filter by target band range (GET only) */
+                band?: "band_4_5" | "band_5_6" | "band_6_7" | "band_7_8" | "band_8_9";
+                /** @description Filter by topic (GET only) */
+                topic?: "culture" | "education" | "environment" | "health" | "life" | "sports" | "technology" | "travel" | "work";
+            };
             header?: never;
             path: {
                 /** @description A unique integer value identifying this learning module. */

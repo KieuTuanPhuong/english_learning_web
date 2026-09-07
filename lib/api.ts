@@ -48,6 +48,11 @@ import type {
   PronunciationAttempt,
   DrillType,
   DifficultyLevel,
+  Meeting,
+  MeetingRequest,
+  ExerciseListItem,
+  ExerciseFacets,
+  ExerciseCatalogFilters,
 } from "./types";
 
 const REFRESH_STORAGE_KEY = "elw_refresh_token";
@@ -696,6 +701,41 @@ export function listMyPronunciationAttempts(params?: {
   return apiFetch<PronunciationAttempt[]>(
     `/api/pronunciation/attempts/me/${suffix}`,
   );
+}
+
+// Exercise catalog (feature 06) — browse practice by topic/band. Rows are the
+// light, answer-free shape; open an exercise's detail to work on it.
+function catalogQuery(f?: ExerciseCatalogFilters): string {
+  const qs = new URLSearchParams();
+  if (f?.band) qs.set("band", f.band);
+  if (f?.topic) qs.set("topic", f.topic);
+  if (f?.type) qs.set("type", f.type);
+  if (f?.module_id != null) qs.set("module_id", String(f.module_id));
+  if (f?.q) qs.set("q", f.q);
+  return qs.toString() ? `?${qs}` : "";
+}
+export function listExercises(f?: ExerciseCatalogFilters): Promise<ExerciseListItem[]> {
+  return apiFetch<ExerciseListItem[]>(`/api/exercises/${catalogQuery(f)}`);
+}
+export function getExerciseFacets(f?: ExerciseCatalogFilters): Promise<ExerciseFacets> {
+  return apiFetch<ExerciseFacets>(`/api/exercises/facets/${catalogQuery(f)}`);
+}
+
+// Meetings (feature 05) — P2P WebRTC rooms; signaling rides ws/meetings/<id>/.
+export function listMeetings(): Promise<Meeting[]> {
+  return apiFetch<Meeting[]>("/api/meetings/");
+}
+export function getMeeting(id: number): Promise<Meeting> {
+  return apiFetch<Meeting>(`/api/meetings/${id}/`);
+}
+export function createMeeting(body: MeetingRequest): Promise<Meeting> {
+  return apiFetch<Meeting>("/api/meetings/", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+export function endMeeting(id: number): Promise<Meeting> {
+  return apiFetch<Meeting>(`/api/meetings/${id}/end/`, { method: "POST" });
 }
 
 // CSV/binary download — apiFetch can't be used (it does res.json()).
