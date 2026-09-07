@@ -24,6 +24,8 @@ import type {
   PronunciationDrillRequest,
   DrillType,
   DifficultyLevel,
+  MeetingRequest,
+  ExerciseCatalogFilters,
 } from "./types";
 
 // Classes
@@ -554,6 +556,52 @@ export function useDeletePronunciationDrill() {
   });
 }
 
+// ---- Exercise catalog (feature 06) ----
+// Both hooks take the same filters: the list returns matching rows, the facets
+// return the counts behind every other choice, so the chips can show what
+// switching band or topic would give.
+export function useExerciseCatalog(filters: ExerciseCatalogFilters) {
+  return useQuery({
+    queryKey: qk.exerciseCatalog(filters),
+    queryFn: () => api.listExercises(filters),
+  });
+}
+export function useExerciseFacets(filters: ExerciseCatalogFilters) {
+  return useQuery({
+    queryKey: qk.exerciseFacets(filters),
+    queryFn: () => api.getExerciseFacets(filters),
+  });
+}
+
+// ---- P2P meetings (feature 05) ----
+export function useMeetings() {
+  return useQuery({ queryKey: qk.meetings, queryFn: api.listMeetings });
+}
+export function useMeeting(id: number) {
+  return useQuery({
+    queryKey: qk.meeting(id),
+    queryFn: () => api.getMeeting(id),
+    enabled: Number.isFinite(id),
+  });
+}
+export function useCreateMeeting() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: MeetingRequest) => api.createMeeting(body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.meetings }),
+  });
+}
+export function useEndMeeting() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => api.endMeeting(id),
+    onSuccess: (_data, id) => {
+      qc.invalidateQueries({ queryKey: qk.meetings });
+      qc.invalidateQueries({ queryKey: qk.meeting(id) });
+    },
+  });
+}
+
 // ---- Realtime WebSockets ----
 export function useRealtimeNotifications() {
   const qc = useQueryClient();
@@ -566,6 +614,13 @@ export function useRealtimeNotifications() {
       if (m.event === "feedback_posted") qc.invalidateQueries({ queryKey: qk.mySubmissions });
       // Feature 03 Phase 2: coarse refresh of any open submission view.
       if (m.event === "annotation_posted") qc.invalidateQueries({ queryKey: ["submissions"] });
+      // Feature 05: a teacher started or ended a meeting for one of my classes.
+      if (
+        m.event === "meeting_started" ||
+        m.event === "meeting_scheduled" ||
+        m.event === "meeting_ended"
+      )
+        qc.invalidateQueries({ queryKey: qk.meetings });
     });
     return () => ws.close();
   }, [qc]);

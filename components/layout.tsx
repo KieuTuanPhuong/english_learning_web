@@ -1,6 +1,6 @@
 "use client";
 // App shells + role theming. Student -> mobile (bottom tab bar); teacher/admin -> desktop (sidebar).
-import { useEffect, type ComponentType, type ReactNode } from "react";
+import { useEffect, useRef, type ComponentType, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -15,6 +15,8 @@ import {
   User as UserIcon,
   Users,
   Library,
+  Video,
+  Target,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/cn";
@@ -29,6 +31,8 @@ type NavItem = {
 const studentNav: NavItem[] = [
   { label: "Home", href: "/dashboard", icon: Home },
   { label: "Classes", href: "/classes", icon: GraduationCap },
+  { label: "Meetings", href: "/meetings", icon: Video },
+  { label: "Practice", href: "/exercises", icon: Target },
   { label: "Modules", href: "/modules", icon: BookOpen },
   { label: "Mock tests", href: "/mock-tests", icon: Timer },
   { label: "Pronunciation", href: "/pronunciation", icon: Mic },
@@ -40,6 +44,8 @@ const studentNav: NavItem[] = [
 const teacherNav: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "My Classes", href: "/classes", icon: Users },
+  { label: "Meetings", href: "/meetings", icon: Video },
+  { label: "Practice", href: "/exercises", icon: Target },
   { label: "Modules", href: "/modules", icon: BookOpen },
   { label: "Mock tests", href: "/mock-tests", icon: Timer },
   { label: "Pronunciation", href: "/pronunciation", icon: Mic },
@@ -64,8 +70,18 @@ function ResponsiveShell({ children, nav }: { children: ReactNode; nav: NavItem[
   const pathname = usePathname();
   const router = useRouter();
   const { user, role, logout } = useAuth();
+  const mainRef = useRef<HTMLElement>(null);
+
+  // The shell is one viewport tall and only <main> scrolls, so the header,
+  // sidebar and mobile tab bar stay put while content moves. That also means
+  // <main> outlives route changes and keeps its scrollTop — without this reset
+  // you would open a page already scrolled to wherever the previous one was.
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 });
+  }, [pathname]);
+
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-50">
+    <div className="flex h-dvh flex-col overflow-hidden bg-zinc-50">
       <header className="flex shrink-0 items-center justify-between border-b-2 border-accent bg-white px-4 py-3 md:px-6">
         <div className="flex items-center gap-2 md:gap-3">
           <span className="text-lg font-bold md:text-xl">engl.app</span>
@@ -88,8 +104,8 @@ function ResponsiveShell({ children, nav }: { children: ReactNode; nav: NavItem[
         </div>
       </header>
 
-      <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
-        <aside className="hidden w-56 shrink-0 border-r border-zinc-200 bg-white p-3 md:block">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden md:flex-row">
+        <aside className="hidden w-56 shrink-0 overflow-y-auto border-r border-zinc-200 bg-white p-3 md:block">
           <nav className="space-y-1">
             {nav.map((item) => {
               const active = isActive(pathname, item.href);
@@ -113,7 +129,10 @@ function ResponsiveShell({ children, nav }: { children: ReactNode; nav: NavItem[
           </nav>
         </aside>
 
-        <main className="flex-1 overflow-y-auto bg-white p-4 md:bg-transparent md:p-6">
+        <main
+          ref={mainRef}
+          className="min-h-0 flex-1 overflow-y-auto bg-white p-4 md:bg-transparent md:p-6"
+        >
           {children}
         </main>
 

@@ -10,8 +10,16 @@ export type Role = S["UserRoleEnum"]; // "student" | "teacher" | "admin"
 export type UserStatus = S["Status36eEnum"]; // "active" | "suspended" | "inactive"
 export type Class = S["Class"];
 export type ClassStudent = S["ClassStudent"];
-export type LearningModule = S["LearningModule"];
-export type Exercise = S["Exercise"];
+// Widened with band/topic (feature 06) until `yarn gen:api` regenerates —
+// then replace with the plain S[...] aliases (expect BandEnum/TopicEnum).
+export type LearningModule = S["LearningModule"] & {
+  band?: BandLevel | null;
+  topic?: Topic | null;
+};
+export type Exercise = S["Exercise"] & {
+  band?: BandLevel | null;
+  topic?: Topic | null;
+};
 export type Question = S["Question"];
 export type QuestionOption = S["QuestionOption"];
 export type Submission = S["Submission"];
@@ -37,8 +45,15 @@ export type SubmissionRequest = S["SubmissionRequest"];
 // as a string (DRF COERCE_DECIMAL_TO_STRING), not a number.
 export type FeedbackRequest = S["FeedbackRequest"];
 export type ClassRequest = S["ClassRequest"];
-export type LearningModuleRequest = S["LearningModuleRequest"];
-export type ExerciseRequest = S["ExerciseRequest"];
+// Widened with band/topic (feature 06) — see LearningModule/Exercise above.
+export type LearningModuleRequest = S["LearningModuleRequest"] & {
+  band?: BandLevel | null;
+  topic?: Topic | null;
+};
+export type ExerciseRequest = S["ExerciseRequest"] & {
+  band?: BandLevel | null;
+  topic?: Topic | null;
+};
 export type LessonPlanRequest = S["LessonPlanRequest"];
 export type AssignmentRequest = S["AssignmentRequest"];
 export type EnrollRequest = S["EnrollRequest"];
@@ -304,5 +319,104 @@ export interface PronunciationAttempt {
   strictness?: Strictness;
   engine?: string;
   created_at: string;
+}
+
+// --- Feature 06: catalog grading — band ranges + topics (backend core.models) ---
+export type BandLevel =
+  | "band_4_5"
+  | "band_5_6"
+  | "band_6_7"
+  | "band_7_8"
+  | "band_8_9";
+
+export type Topic =
+  | "life"
+  | "sports"
+  | "education"
+  | "work"
+  | "travel"
+  | "environment"
+  | "technology"
+  | "health"
+  | "culture";
+
+export const BAND_LEVELS: BandLevel[] = [
+  "band_4_5",
+  "band_5_6",
+  "band_6_7",
+  "band_7_8",
+  "band_8_9",
+];
+
+// Catalog row from GET /api/exercises/ — deliberately without `questions`, so
+// an answer key never reaches a browse list (backend ExerciseListSerializer).
+export interface ExerciseListItem {
+  id: number;
+  module_id: number | null;
+  module_title: string | null;
+  title: string;
+  exercise_type: SkillType;
+  band: BandLevel | null;
+  topic: Topic | null;
+  question_count: number;
+  created_at: string;
+}
+
+// GET /api/exercises/facets/ — how many exercises sit behind each choice.
+// Each dimension ignores its own filter, so counts show what switching gives.
+export interface ExerciseFacets {
+  total: number;
+  bands: Partial<Record<BandLevel, number>>;
+  topics: Partial<Record<Topic, number>>;
+  types: Partial<Record<SkillType, number>>;
+}
+
+export interface ExerciseCatalogFilters {
+  band?: BandLevel;
+  topic?: Topic;
+  type?: SkillType;
+  module_id?: number;
+  q?: string;
+}
+
+export const TOPICS: Topic[] = [
+  "life",
+  "sports",
+  "education",
+  "work",
+  "travel",
+  "environment",
+  "technology",
+  "health",
+  "culture",
+];
+
+// --- Feature 05: P2P meetings (WebRTC) — backend core.views.MeetingViewSet ---
+export type MeetingStatus = "scheduled" | "active" | "ended";
+
+export interface Meeting {
+  id: number;
+  class_id: number;
+  class_name: string;
+  title: string;
+  status: MeetingStatus;
+  // Teacher's booking; null for start-now rooms.
+  scheduled_at: string | null;
+  // Stamped when the first peer joins — the live timer's origin.
+  started_at: string | null;
+  // Live elapsed seconds while running, final length once ended, null before
+  // anyone joins. Server-computed so both peers agree.
+  duration_seconds: number | null;
+  created_by: number | null;
+  created_by_name: string | null;
+  created_at: string;
+  ended_at: string | null;
+}
+
+export interface MeetingRequest {
+  class_id: number;
+  title: string;
+  // Omit (or null) to open the room immediately.
+  scheduled_at?: string | null;
 }
 

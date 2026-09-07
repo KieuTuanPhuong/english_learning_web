@@ -1,4 +1,15 @@
 // Central TanStack Query key factory. Keep keys stable so invalidation is reliable.
+
+// Structural shape of the exercise-catalog filters, spelled out here (like the
+// submissionsInbox filter) so this module stays import-free.
+type CatalogFilterKey = {
+  band?: string;
+  topic?: string;
+  type?: string;
+  module_id?: number;
+  q?: string;
+};
+
 export const qk = {
   me: ["me"] as const,
   classes: ["classes"] as const,
@@ -40,4 +51,13 @@ export const qk = {
   drillAttempts: (drillId: number) => ["pronunciation", "drills", drillId, "attempts"] as const,
   myPronunciationAttempts: (f?: { drill_id?: number }) =>
     ["pronunciation", "attempts", "me", f ?? {}] as const,
+  // Exercise catalog browse (feature 06) — filters live in the key, same shape
+  // as submissionsInbox.
+  exerciseCatalog: (f?: CatalogFilterKey) =>
+    ["exercises", "catalog", f ?? {}] as const,
+  exerciseFacets: (f?: CatalogFilterKey) =>
+    ["exercises", "facets", f ?? {}] as const,
+  // P2P meetings (feature 05)
+  meetings: ["meetings"] as const,
+  meeting: (id: number) => ["meetings", id] as const,
 };

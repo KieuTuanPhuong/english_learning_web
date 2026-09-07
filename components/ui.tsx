@@ -158,6 +158,9 @@ const badgeColors: Record<string, string> = {
   teacher: "bg-teal-100 text-teal-800",
   admin: "bg-amber-100 text-amber-800",
   ai_graded: "bg-violet-100 text-violet-700 ring-1 ring-violet-600/20",
+  ended: "bg-zinc-200 text-zinc-700",
+  scheduled: "bg-amber-100 text-amber-800",
+  band: "bg-sky-100 text-sky-800",
 };
 
 export function AiTag() {
@@ -306,6 +309,50 @@ export function Tabs({
           {t.label}
         </button>
       ))}
+    </div>
+  );
+}
+
+// Single-select chip row for catalog filters (difficulty / band / topic /
+// type). `count` is optional: pass it to label each chip with how many items it
+// holds — a chip whose count is 0 is dimmed but still selectable, so the set of
+// choices does not jump around while the student narrows down.
+export function FilterChips<T extends string>({
+  options,
+  value,
+  onChange,
+  label,
+  count,
+}: {
+  options: readonly T[];
+  value: T;
+  onChange: (value: T) => void;
+  label: (value: T) => string;
+  count?: (value: T) => number | undefined;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((option) => {
+        const n = count?.(option);
+        const active = value === option;
+        return (
+          <button
+            key={option}
+            type="button"
+            onClick={() => onChange(option)}
+            className={cn(
+              "rounded-full border px-3 py-1 text-xs capitalize transition",
+              active
+                ? "border-accent bg-accent/10 font-medium text-accent"
+                : "border-zinc-300 text-zinc-600 hover:bg-zinc-50",
+              !active && n === 0 && "opacity-40",
+            )}
+          >
+            {label(option)}
+            {n !== undefined && <span className="ml-1 text-zinc-400">{n}</span>}
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -16,7 +16,7 @@ import {
   ProgressBar,
   Skeleton,
 } from "@/components/ui";
-import { parseDecimal } from "@/lib/format";
+import { bandLabel, parseDecimal } from "@/lib/format";
 
 export default function ModuleDetailPage() {
   const params = useParams<{ id: string }>();
@@ -51,11 +51,19 @@ export default function ModuleDetailPage() {
         <div className="space-y-2">
           <div className="flex items-start justify-between gap-2">
             <h1 className="text-2xl font-bold">{moduleQ.data.title}</h1>
-            {moduleQ.data.difficulty_level && (
-              <Badge kind={moduleQ.data.difficulty_level}>
-                {moduleQ.data.difficulty_level}
-              </Badge>
-            )}
+            <div className="flex flex-wrap justify-end gap-1">
+              {moduleQ.data.difficulty_level && (
+                <Badge kind={moduleQ.data.difficulty_level}>
+                  {moduleQ.data.difficulty_level}
+                </Badge>
+              )}
+              {moduleQ.data.band && (
+                <Badge kind="band">{bandLabel(moduleQ.data.band)}</Badge>
+              )}
+              {moduleQ.data.topic && (
+                <Badge kind={moduleQ.data.topic}>{moduleQ.data.topic}</Badge>
+              )}
+            </div>
           </div>
           {moduleQ.data.description && (
             <p className="text-sm text-zinc-600">{moduleQ.data.description}</p>
@@ -90,6 +98,8 @@ export default function ModuleDetailPage() {
                     {ex.questions && ex.questions.length > 0 && (
                       <Badge className="bg-zinc-100 text-zinc-600">{ex.questions.length} Qs</Badge>
                     )}
+                    {ex.band && <Badge kind="band">{bandLabel(ex.band)}</Badge>}
+                    {ex.topic && <Badge kind={ex.topic}>{ex.topic}</Badge>}
                     <Badge kind={ex.exercise_type}>{ex.exercise_type}</Badge>
                   </div>
                 </Card>
