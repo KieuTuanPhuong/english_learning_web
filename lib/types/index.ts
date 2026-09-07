@@ -100,6 +100,78 @@ export type TeacherDashboard = {
 // to change: the field names here match the documented serializers exactly.
 // ===========================================================================
 
+// --- AI coaching (backend core/ai/assist.py): teacher-feedback review and
+// student mistake explanation. Shapes mirror FeedbackReviewSerializer /
+// AiInsightSerializer; replace with S["..."] after `yarn gen:api`.
+export type AiReviewArea =
+  | "specificity"
+  | "tone"
+  | "actionability"
+  | "accuracy"
+  | "coverage"
+  | "score_alignment"
+  | "language_level";
+
+export interface AiRecommendation {
+  area: AiReviewArea;
+  issue: string;
+  suggestion: string;
+}
+
+export interface FeedbackReview {
+  summary: string;
+  rating: number; // 1-5
+  strengths: string[];
+  recommendations: AiRecommendation[];
+  score_alignment: string;
+  suggested_comment: string;
+  engine: string; // "mock" | "gemini:<model>"
+}
+
+export interface FeedbackReviewRequest {
+  score?: string | null;
+  comments?: string;
+  criterion_scores?: { criterion_id: number; score: string; note?: string }[];
+}
+
+export type AiMistakeCategory =
+  | "grammar"
+  | "vocabulary"
+  | "spelling"
+  | "punctuation"
+  | "coherence"
+  | "task_response"
+  | "comprehension"
+  | "inference"
+  | "detail"
+  | "other";
+
+export interface AiMistake {
+  location: string;
+  student_answer: string;
+  correction: string;
+  category: AiMistakeCategory;
+  explanation: string;
+  tip: string;
+}
+
+export interface MistakeExplanation {
+  summary: string;
+  mistakes: AiMistake[];
+  strengths: string[];
+  practice_suggestions: string[];
+  engine: string;
+}
+
+export interface AiInsight {
+  id: number;
+  submission_id: number;
+  kind: "mistake_explanation" | "feedback_review";
+  payload: MistakeExplanation;
+  engine: string;
+  created_at: string;
+}
+
 // --- Feature 02: Scoring rubrics (backend doc 02 §4.1/§4.3) ---
 export type RubricAggregation =
   | "mean_down_half"

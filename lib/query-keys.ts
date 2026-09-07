@@ -13,6 +13,7 @@ export const qk = {
   exerciseSubmissions: (id: number) => ["exercises", id, "submissions"] as const,
   mySubmissions: ["submissions", "me"] as const,
   submissionFeedback: (id: number) => ["submissions", id, "feedback"] as const,
+  mistakeExplanation: (id: number) => ["submissions", id, "ai-explain"] as const,
   myProgress: ["progress", "me"] as const,
   dashboard: ["dashboard"] as const,
   submissionsInbox: (f?: { status?: string; class_id?: number; exercise_id?: number }) =>

@@ -13,6 +13,7 @@ import { RubricMatrix, type CellPreview } from "./RubricMatrix";
 import { BandDescriptorPanel } from "./BandDescriptorPanel";
 import { OverallScorePreview } from "./OverallScorePreview";
 import { buildGradeFormSchema } from "./schemas";
+import { FeedbackReviewPanel } from "@/components/ai/FeedbackReviewPanel";
 
 export function RubricGradeForm({
   submissionId,
@@ -130,6 +131,22 @@ export function RubricGradeForm({
         rows={4}
         value={comments}
         onChange={(e) => setComments(e.target.value)}
+      />
+
+      <FeedbackReviewPanel
+        submissionId={submissionId}
+        getDraft={() => {
+          const criterion_scores = template.criteria
+            .filter((c) => scores[c.id] != null)
+            .map((c) => ({
+              criterion_id: c.id,
+              score: String(scores[c.id]),
+              note: notes[c.id]?.trim() || undefined,
+            }));
+          if (!comments.trim() && criterion_scores.length === 0) return null;
+          return { comments, criterion_scores };
+        }}
+        onUseSuggestion={setComments}
       />
 
       {error && <p className="text-sm font-medium text-red-600">{error}</p>}
