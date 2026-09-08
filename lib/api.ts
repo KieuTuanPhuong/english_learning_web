@@ -575,6 +575,14 @@ export function uploadMockTestAudio(
 export function getTestAttemptReport(id: number): Promise<TestAttemptReport> {
   return apiFetch<TestAttemptReport>(`/api/mock-tests/attempts/${id}/report/`);
 }
+// Automatic AI marking catch-up / retry: claims the completed sections still
+// pending or failed, grades them in the background, and returns the report
+// (202 when something was claimed, 200 when there was nothing to do).
+export function aiGradeTestAttempt(id: number): Promise<TestAttemptReport> {
+  return apiFetch<TestAttemptReport>(`/api/mock-tests/attempts/${id}/ai-grade/`, {
+    method: "POST",
+  });
+}
 
 // ---- Rubrics (feature 02) --------------------------------------------------
 export function listRubrics(): Promise<RubricTemplate[]> {

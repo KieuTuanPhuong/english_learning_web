@@ -15,7 +15,7 @@ export interface paths {
          * Recent admin activity (audit logs + new users/submissions/feedback)
          * @description Recent admin activity feed (read-only, Admin only).
          */
-        get: operations["admin_activity_list"];
+        get: operations["api_admin_activity_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -35,7 +35,7 @@ export interface paths {
          * System health probe (database check + entity counts)
          * @description System health snapshot (read-only, Admin only).
          */
-        get: operations["admin_health_retrieve"];
+        get: operations["api_admin_health_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -55,13 +55,13 @@ export interface paths {
          * @description Admin-managed multimodal-evaluation engine registry (docs.md UC-20/21,
          *     RBAC row 13). Toggling is_active/strictness reconfigures the live AI grader.
          */
-        get: operations["ai_models_list"];
+        get: operations["api_ai_models_list"];
         put?: never;
         /**
          * @description Admin-managed multimodal-evaluation engine registry (docs.md UC-20/21,
          *     RBAC row 13). Toggling is_active/strictness reconfigures the live AI grader.
          */
-        post: operations["ai_models_create"];
+        post: operations["api_ai_models_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -79,25 +79,25 @@ export interface paths {
          * @description Admin-managed multimodal-evaluation engine registry (docs.md UC-20/21,
          *     RBAC row 13). Toggling is_active/strictness reconfigures the live AI grader.
          */
-        get: operations["ai_models_retrieve"];
+        get: operations["api_ai_models_retrieve"];
         /**
          * @description Admin-managed multimodal-evaluation engine registry (docs.md UC-20/21,
          *     RBAC row 13). Toggling is_active/strictness reconfigures the live AI grader.
          */
-        put: operations["ai_models_update"];
+        put: operations["api_ai_models_update"];
         post?: never;
         /**
          * @description Admin-managed multimodal-evaluation engine registry (docs.md UC-20/21,
          *     RBAC row 13). Toggling is_active/strictness reconfigures the live AI grader.
          */
-        delete: operations["ai_models_destroy"];
+        delete: operations["api_ai_models_destroy"];
         options?: never;
         head?: never;
         /**
          * @description Admin-managed multimodal-evaluation engine registry (docs.md UC-20/21,
          *     RBAC row 13). Toggling is_active/strictness reconfigures the live AI grader.
          */
-        patch: operations["ai_models_partial_update"];
+        patch: operations["api_ai_models_partial_update"];
         trace?: never;
     };
     "/api/annotations/": {
@@ -114,7 +114,7 @@ export interface paths {
          *     (docs/research/03-writing-annotations.md §4.4). Nested read lives on
          *     SubmissionViewSet.annotations; this viewset owns the writes.
          */
-        post: operations["annotations_create"];
+        post: operations["api_annotations_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -134,14 +134,14 @@ export interface paths {
          *     (docs/research/03-writing-annotations.md §4.4). Nested read lives on
          *     SubmissionViewSet.annotations; this viewset owns the writes.
          */
-        put: operations["annotations_update"];
+        put: operations["api_annotations_update"];
         post?: never;
         /**
          * @description Inline teacher annotations on a writing submission
          *     (docs/research/03-writing-annotations.md §4.4). Nested read lives on
          *     SubmissionViewSet.annotations; this viewset owns the writes.
          */
-        delete: operations["annotations_destroy"];
+        delete: operations["api_annotations_destroy"];
         options?: never;
         head?: never;
         /**
@@ -149,7 +149,7 @@ export interface paths {
          *     (docs/research/03-writing-annotations.md §4.4). Nested read lives on
          *     SubmissionViewSet.annotations; this viewset owns the writes.
          */
-        patch: operations["annotations_partial_update"];
+        patch: operations["api_annotations_partial_update"];
         trace?: never;
     };
     "/api/annotations/{id}/acknowledge/": {
@@ -167,7 +167,7 @@ export interface paths {
          *     (docs/research/03-writing-annotations.md §4.4). Nested read lives on
          *     SubmissionViewSet.annotations; this viewset owns the writes.
          */
-        post: operations["annotations_acknowledge_create"];
+        post: operations["api_annotations_acknowledge_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -187,7 +187,7 @@ export interface paths {
          * Log in with email + password
          * @description Email + password -> JWT access/refresh pair.
          */
-        post: operations["auth_login_create"];
+        post: operations["api_auth_login_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -204,7 +204,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Register a new user */
-        post: operations["auth_register_create"];
+        post: operations["api_auth_register_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -224,7 +224,7 @@ export interface paths {
          * @description Takes a set of user credentials and returns an access and refresh JSON web
          *     token pair to prove the authentication of those credentials.
          */
-        post: operations["auth_token_create"];
+        post: operations["api_auth_token_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -244,7 +244,7 @@ export interface paths {
          * @description Takes a refresh type JSON web token and returns an access type JSON web
          *     token if the refresh token is valid.
          */
-        post: operations["auth_token_refresh_create"];
+        post: operations["api_auth_token_refresh_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -258,9 +258,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["classes_list"];
+        get: operations["api_classes_list"];
         put?: never;
-        post: operations["classes_create"];
+        post: operations["api_classes_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -274,13 +274,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["classes_retrieve"];
-        put: operations["classes_update"];
+        get: operations["api_classes_retrieve"];
+        put: operations["api_classes_update"];
         post?: never;
-        delete: operations["classes_destroy"];
+        delete: operations["api_classes_destroy"];
         options?: never;
         head?: never;
-        patch: operations["classes_partial_update"];
+        patch: operations["api_classes_partial_update"];
         trace?: never;
     };
     "/api/classes/{id}/assignments/": {
@@ -291,10 +291,10 @@ export interface paths {
             cookie?: never;
         };
         /** List or create assignments for a class */
-        get: operations["classes_assignments_list"];
+        get: operations["api_classes_assignments_list"];
         put?: never;
         /** List or create assignments for a class */
-        post: operations["classes_assignments_create"];
+        post: operations["api_classes_assignments_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -309,10 +309,10 @@ export interface paths {
             cookie?: never;
         };
         /** List or create lesson plans for a class */
-        get: operations["classes_lesson_plans_list"];
+        get: operations["api_classes_lesson_plans_list"];
         put?: never;
         /** List or create lesson plans for a class */
-        post: operations["classes_lesson_plans_create"];
+        post: operations["api_classes_lesson_plans_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -327,10 +327,10 @@ export interface paths {
             cookie?: never;
         };
         /** List students in a class, or enroll one */
-        get: operations["classes_students_list"];
+        get: operations["api_classes_students_list"];
         put?: never;
         /** List students in a class, or enroll one */
-        post: operations["classes_students_create"];
+        post: operations["api_classes_students_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -348,7 +348,7 @@ export interface paths {
         put?: never;
         post?: never;
         /** Remove a student from a class */
-        delete: operations["classes_students_destroy"];
+        delete: operations["api_classes_students_destroy"];
         options?: never;
         head?: never;
         patch?: never;
@@ -365,7 +365,27 @@ export interface paths {
          * Role-aware dashboard aggregate (student / teacher / admin)
          * @description Returns a different payload shape per role. Student: due/upcoming assignments, in-progress modules, recent feedback. Teacher: class & student counts, ungraded-submission count, recent activity. Admin: user counts by role and platform totals + recent rows.
          */
-        get: operations["dashboard_retrieve"];
+        get: operations["api_dashboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/exercises/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Browse the exercise catalog by topic, band, type or keyword
+         * @description Open to every authenticated user — this is how a student picks practice by topic or band. Rows omit `questions` (and therefore answer keys); fetch an exercise's detail to work on it.
+         */
+        get: operations["api_exercises_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -381,10 +401,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["exercises_retrieve"];
+        get: operations["api_exercises_retrieve"];
         put?: never;
         post?: never;
-        delete: operations["exercises_destroy"];
+        delete: operations["api_exercises_destroy"];
         options?: never;
         head?: never;
         patch?: never;
@@ -401,7 +421,7 @@ export interface paths {
          * Resolved rubric template for this exercise (pin → type default → null)
          * @description Returns the RubricTemplate that grading this exercise's productive submissions should use: the exercise's pinned template, else the active default for its exercise_type, else 200 with a null body (not 404) so the client falls back to holistic grading.
          */
-        get: operations["exercises_rubric_retrieve"];
+        get: operations["api_exercises_rubric_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -418,7 +438,27 @@ export interface paths {
             cookie?: never;
         };
         /** List submissions for an exercise (teacher/admin) */
-        get: operations["exercises_submissions_list"];
+        get: operations["api_exercises_submissions_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/exercises/facets/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Counts per topic, band and type for the catalog filters
+         * @description Lets the browse UI label each filter chip with how many exercises it holds and hide empty ones. Each dimension's counts ignore its own filter, so they show what switching to another band or topic would give.
+         */
+        get: operations["api_exercises_facets_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -436,7 +476,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["feedback_create"];
+        post: operations["api_feedback_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -472,7 +512,7 @@ export interface paths {
          *     ``max_record_seconds`` on top of the global cap, so an IELTS Part 2 long
          *     turn is held to its real two minutes rather than the endpoint's six.
          */
-        post: operations["media_audio_create"];
+        post: operations["api_media_audio_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -490,13 +530,13 @@ export interface paths {
          * @description 1:1 WebRTC meeting rooms. Create/end is teacher-side; students of the
          *     class can list and retrieve (join happens over the signaling socket).
          */
-        get: operations["meetings_list"];
+        get: operations["api_meetings_list"];
         put?: never;
         /**
          * @description 1:1 WebRTC meeting rooms. Create/end is teacher-side; students of the
          *     class can list and retrieve (join happens over the signaling socket).
          */
-        post: operations["meetings_create"];
+        post: operations["api_meetings_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -514,7 +554,7 @@ export interface paths {
          * @description 1:1 WebRTC meeting rooms. Create/end is teacher-side; students of the
          *     class can list and retrieve (join happens over the signaling socket).
          */
-        get: operations["meetings_retrieve"];
+        get: operations["api_meetings_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -537,7 +577,7 @@ export interface paths {
          * @description 1:1 WebRTC meeting rooms. Create/end is teacher-side; students of the
          *     class can list and retrieve (join happens over the signaling socket).
          */
-        post: operations["meetings_end_create"];
+        post: operations["api_meetings_end_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -555,9 +595,29 @@ export interface paths {
          * @description A student's sitting of a mock test. All timing is server-authoritative
          *     (core/mock_tests.py): the client only reads `expires_at` and `server_time`.
          */
-        get: operations["mock_tests_attempts_retrieve"];
+        get: operations["api_mock_tests_attempts_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mock-tests/attempts/{id}/ai-grade/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run automatic AI marking for the attempt's completed sections
+         * @description Claims every completed section whose AI marking is pending, failed or stuck and grades it in the background: Writing/Speaking tasks get an AI Feedback row (which sets the section band); Listening/Reading tasks get a per-question explanation of each wrong answer, folded into the report's `submissions[].questions`. Sections are claimed automatically on submit, so this is the retry / catch-up path. Returns the report: 202 when something was claimed, 200 when there was nothing to do. Poll the report while any section's `ai_status` is `running`.
+         */
+        post: operations["api_mock_tests_attempts_ai_grade_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -575,7 +635,7 @@ export interface paths {
          * Score report for an attempt (owner student / their teacher / admin)
          * @description `partial` stays true while any section lacks a converted score — Listening/Reading land immediately, Writing/Speaking after teacher or AI grading. Scores are estimates: see `estimated`.
          */
-        get: operations["mock_tests_attempts_report_retrieve"];
+        get: operations["api_mock_tests_attempts_report_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -597,7 +657,7 @@ export interface paths {
          * Close the current part of a sequential section
          * @description Listening recordings and Speaking interview parts run one at a time with no going back. This closes the part in hand and opens the next; it is idempotent, so a double tap cannot skip one. Sections whose parts are all open (Reading, Writing) reject it.
          */
-        post: operations["mock_tests_attempts_sections_advance_create"];
+        post: operations["api_mock_tests_attempts_sections_advance_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -621,7 +681,7 @@ export interface paths {
          * Autosave the section's draft answers
          * @description Replaces the whole draft envelope in one row UPDATE. Returns 409 with code `section_expired` once the clock has run out — the client then locks the UI and offers only Submit.
          */
-        patch: operations["mock_tests_attempts_sections_answers_partial_update"];
+        patch: operations["api_mock_tests_attempts_sections_answers_partial_update"];
         trace?: never;
     };
     "/api/mock-tests/attempts/{id}/sections/{section_attempt_id}/start/": {
@@ -637,7 +697,7 @@ export interface paths {
          * Start a section's server clock
          * @description Sets started_at and expires_at (duration + 30s grace). Sections must be taken in order, one at a time. Idempotent while the section is already running.
          */
-        post: operations["mock_tests_attempts_sections_start_create"];
+        post: operations["api_mock_tests_attempts_sections_start_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -657,7 +717,7 @@ export interface paths {
          * Submit a section
          * @description Creates one ordinary Submission per exercise in the section, auto-grades receptive ones, and converts the raw count into a band/scaled score. Accepted after expiry too, but then it grades the last draft the server accepted rather than the request body.
          */
-        post: operations["mock_tests_attempts_sections_submit_create"];
+        post: operations["api_mock_tests_attempts_sections_submit_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -676,7 +736,7 @@ export interface paths {
          * @description A student's sitting of a mock test. All timing is server-authoritative
          *     (core/mock_tests.py): the client only reads `expires_at` and `server_time`.
          */
-        get: operations["mock_tests_attempts_me_list"];
+        get: operations["api_mock_tests_attempts_me_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -697,14 +757,14 @@ export interface paths {
          *     authenticated user so the catalog can badge templates; writable by admins
          *     only — adding a format is data entry, never a migration.
          */
-        get: operations["mock_tests_formats_list"];
+        get: operations["api_mock_tests_formats_list"];
         put?: never;
         /**
          * @description Exam-format registry (IELTS Academic, TOEIC L&R, ...). Readable by any
          *     authenticated user so the catalog can badge templates; writable by admins
          *     only — adding a format is data entry, never a migration.
          */
-        post: operations["mock_tests_formats_create"];
+        post: operations["api_mock_tests_formats_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -723,20 +783,20 @@ export interface paths {
          *     authenticated user so the catalog can badge templates; writable by admins
          *     only — adding a format is data entry, never a migration.
          */
-        get: operations["mock_tests_formats_retrieve"];
+        get: operations["api_mock_tests_formats_retrieve"];
         /**
          * @description Exam-format registry (IELTS Academic, TOEIC L&R, ...). Readable by any
          *     authenticated user so the catalog can badge templates; writable by admins
          *     only — adding a format is data entry, never a migration.
          */
-        put: operations["mock_tests_formats_update"];
+        put: operations["api_mock_tests_formats_update"];
         post?: never;
         /**
          * @description Exam-format registry (IELTS Academic, TOEIC L&R, ...). Readable by any
          *     authenticated user so the catalog can badge templates; writable by admins
          *     only — adding a format is data entry, never a migration.
          */
-        delete: operations["mock_tests_formats_destroy"];
+        delete: operations["api_mock_tests_formats_destroy"];
         options?: never;
         head?: never;
         /**
@@ -744,7 +804,7 @@ export interface paths {
          *     authenticated user so the catalog can badge templates; writable by admins
          *     only — adding a format is data entry, never a migration.
          */
-        patch: operations["mock_tests_formats_partial_update"];
+        patch: operations["api_mock_tests_formats_partial_update"];
         trace?: never;
     };
     "/api/mock-tests/formats/{id}/conversions/": {
@@ -758,12 +818,12 @@ export interface paths {
          * Read or replace a format's raw -> band/scaled conversion tables
          * @description GET returns every per-skill table for the format. PUT replaces one table: body is {skill, mapping, source_note}. Official IELTS/TOEIC tables are unpublished, so seeded mappings are approximations and reports label scores 'estimated'.
          */
-        get: operations["mock_tests_formats_conversions_list"];
+        get: operations["api_mock_tests_formats_conversions_list"];
         /**
          * Read or replace a format's raw -> band/scaled conversion tables
          * @description GET returns every per-skill table for the format. PUT replaces one table: body is {skill, mapping, source_note}. Official IELTS/TOEIC tables are unpublished, so seeded mappings are approximations and reports label scores 'estimated'.
          */
-        put: operations["mock_tests_formats_conversions_update"];
+        put: operations["api_mock_tests_formats_conversions_update"];
         post?: never;
         delete?: never;
         options?: never;
@@ -787,7 +847,7 @@ export interface paths {
          *     admins curating the shelf. This mirrors StudyMaterialViewSet (RBAC rows
          *     6-7): no publish gate, no per-teacher ownership scope.
          */
-        get: operations["mock_tests_templates_list"];
+        get: operations["api_mock_tests_templates_list"];
         put?: never;
         /**
          * @description The platform's mock-test library: an ordered set of sections, each
@@ -798,7 +858,7 @@ export interface paths {
          *     admins curating the shelf. This mirrors StudyMaterialViewSet (RBAC rows
          *     6-7): no publish gate, no per-teacher ownership scope.
          */
-        post: operations["mock_tests_templates_create"];
+        post: operations["api_mock_tests_templates_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -821,7 +881,7 @@ export interface paths {
          *     admins curating the shelf. This mirrors StudyMaterialViewSet (RBAC rows
          *     6-7): no publish gate, no per-teacher ownership scope.
          */
-        get: operations["mock_tests_templates_retrieve"];
+        get: operations["api_mock_tests_templates_retrieve"];
         /**
          * @description The platform's mock-test library: an ordered set of sections, each
          *     wrapping existing Exercises.
@@ -831,7 +891,7 @@ export interface paths {
          *     admins curating the shelf. This mirrors StudyMaterialViewSet (RBAC rows
          *     6-7): no publish gate, no per-teacher ownership scope.
          */
-        put: operations["mock_tests_templates_update"];
+        put: operations["api_mock_tests_templates_update"];
         post?: never;
         /**
          * @description The platform's mock-test library: an ordered set of sections, each
@@ -842,7 +902,7 @@ export interface paths {
          *     admins curating the shelf. This mirrors StudyMaterialViewSet (RBAC rows
          *     6-7): no publish gate, no per-teacher ownership scope.
          */
-        delete: operations["mock_tests_templates_destroy"];
+        delete: operations["api_mock_tests_templates_destroy"];
         options?: never;
         head?: never;
         /**
@@ -854,7 +914,7 @@ export interface paths {
          *     admins curating the shelf. This mirrors StudyMaterialViewSet (RBAC rows
          *     6-7): no publish gate, no per-teacher ownership scope.
          */
-        patch: operations["mock_tests_templates_partial_update"];
+        patch: operations["api_mock_tests_templates_partial_update"];
         trace?: never;
     };
     "/api/mock-tests/templates/{id}/attempts/": {
@@ -872,7 +932,7 @@ export interface paths {
          *
          *     `mode` is `exam` (sections in the template's order, the real sitting) or `practice` (start with whichever section you like). Defaults to `exam` when the body is omitted.
          */
-        post: operations["mock_tests_templates_attempts_create"];
+        post: operations["api_mock_tests_templates_attempts_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -892,7 +952,7 @@ export interface paths {
          * Copy a template into a new, unattempted one
          * @description Sections and their items are copied; attempts are not. This is the supported way to revise a test that students have already sat — editing one in place is refused so their score reports keep meaning what they said.
          */
-        post: operations["mock_tests_templates_duplicate_create"];
+        post: operations["api_mock_tests_templates_duplicate_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -910,7 +970,7 @@ export interface paths {
          * Export a template as a portable JSON document
          * @description Exercises are inlined by content rather than by id, so the document can be imported into another environment where those ids mean nothing. Answer keys are included — this is an admin export, not anything a student may read.
          */
-        get: operations["mock_tests_templates_export_retrieve"];
+        get: operations["api_mock_tests_templates_export_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -932,7 +992,7 @@ export interface paths {
          * Import one or more exported templates
          * @description Body is a single export document or a list of them — the bulk path. Each document creates its own exercises, so an import never re-points at content another test already owns.
          */
-        post: operations["mock_tests_templates_import_create"];
+        post: operations["api_mock_tests_templates_import_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -947,9 +1007,9 @@ export interface paths {
             cookie?: never;
         };
         /** List modules, filterable by band and topic */
-        get: operations["modules_list"];
+        get: operations["api_modules_list"];
         put?: never;
-        post: operations["modules_create"];
+        post: operations["api_modules_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -963,13 +1023,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules_retrieve"];
-        put: operations["modules_update"];
+        get: operations["api_modules_retrieve"];
+        put: operations["api_modules_update"];
         post?: never;
-        delete: operations["modules_destroy"];
+        delete: operations["api_modules_destroy"];
         options?: never;
         head?: never;
-        patch: operations["modules_partial_update"];
+        patch: operations["api_modules_partial_update"];
         trace?: never;
     };
     "/api/modules/{id}/exercises/": {
@@ -980,10 +1040,10 @@ export interface paths {
             cookie?: never;
         };
         /** List or create exercises within a module */
-        get: operations["modules_exercises_list"];
+        get: operations["api_modules_exercises_list"];
         put?: never;
         /** List or create exercises within a module */
-        post: operations["modules_exercises_create"];
+        post: operations["api_modules_exercises_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1003,7 +1063,7 @@ export interface paths {
          * Upsert the current student's progress for a module
          * @description Upsert progress for (student, module). POST /api/progress/.
          */
-        post: operations["progress_create"];
+        post: operations["api_progress_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1018,7 +1078,7 @@ export interface paths {
             cookie?: never;
         };
         /** List the current student's module progress */
-        get: operations["progress_me_list"];
+        get: operations["api_progress_me_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1039,7 +1099,7 @@ export interface paths {
          * @description Cross-drill attempt history for the current student. Attempts are always
          *     scoped to the requesting student (N2: read only your own).
          */
-        get: operations["pronunciation_attempts_me_list"];
+        get: operations["api_pronunciation_attempts_me_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1060,14 +1120,14 @@ export interface paths {
          *     Any authenticated user browses; teachers/admins author (creator-scoped edit).
          *     The nested `attempts` action is the record → score → retry loop.
          */
-        get: operations["pronunciation_drills_list"];
+        get: operations["api_pronunciation_drills_list"];
         put?: never;
         /**
          * @description Pronunciation drills (docs/research/04-pronunciation-practice.md §4.2).
          *     Any authenticated user browses; teachers/admins author (creator-scoped edit).
          *     The nested `attempts` action is the record → score → retry loop.
          */
-        post: operations["pronunciation_drills_create"];
+        post: operations["api_pronunciation_drills_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1086,20 +1146,20 @@ export interface paths {
          *     Any authenticated user browses; teachers/admins author (creator-scoped edit).
          *     The nested `attempts` action is the record → score → retry loop.
          */
-        get: operations["pronunciation_drills_retrieve"];
+        get: operations["api_pronunciation_drills_retrieve"];
         /**
          * @description Pronunciation drills (docs/research/04-pronunciation-practice.md §4.2).
          *     Any authenticated user browses; teachers/admins author (creator-scoped edit).
          *     The nested `attempts` action is the record → score → retry loop.
          */
-        put: operations["pronunciation_drills_update"];
+        put: operations["api_pronunciation_drills_update"];
         post?: never;
         /**
          * @description Pronunciation drills (docs/research/04-pronunciation-practice.md §4.2).
          *     Any authenticated user browses; teachers/admins author (creator-scoped edit).
          *     The nested `attempts` action is the record → score → retry loop.
          */
-        delete: operations["pronunciation_drills_destroy"];
+        delete: operations["api_pronunciation_drills_destroy"];
         options?: never;
         head?: never;
         /**
@@ -1107,7 +1167,7 @@ export interface paths {
          *     Any authenticated user browses; teachers/admins author (creator-scoped edit).
          *     The nested `attempts` action is the record → score → retry loop.
          */
-        patch: operations["pronunciation_drills_partial_update"];
+        patch: operations["api_pronunciation_drills_partial_update"];
         trace?: never;
     };
     "/api/pronunciation/drills/{id}/attempts/": {
@@ -1121,13 +1181,13 @@ export interface paths {
          * List own attempts (GET) or record + score a new one (POST)
          * @description GET returns the current student's attempt history for this drill (retry loop). POST is multipart/form-data with field `audio`: the server validates size/type, stores the file, runs pronunciation assessment synchronously, and returns the scored attempt (201).
          */
-        get: operations["pronunciation_drills_attempts_list"];
+        get: operations["api_pronunciation_drills_attempts_list"];
         put?: never;
         /**
          * List own attempts (GET) or record + score a new one (POST)
          * @description GET returns the current student's attempt history for this drill (retry loop). POST is multipart/form-data with field `audio`: the server validates size/type, stores the file, runs pronunciation assessment synchronously, and returns the scored attempt (201).
          */
-        post: operations["pronunciation_drills_attempts_create"];
+        post: operations["api_pronunciation_drills_attempts_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1142,7 +1202,7 @@ export interface paths {
             cookie?: never;
         };
         /** Export a class grade report (CSV; PDF deferred) */
-        get: operations["reports_grades_retrieve"];
+        get: operations["api_reports_grades_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1165,7 +1225,7 @@ export interface paths {
          *     by any authenticated active user — students need the wording for their own
          *     breakdowns. MVP content is managed via seed_rubrics + Django admin.
          */
-        get: operations["rubrics_list"];
+        get: operations["api_rubrics_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1188,7 +1248,7 @@ export interface paths {
          *     by any authenticated active user — students need the wording for their own
          *     breakdowns. MVP content is managed via seed_rubrics + Django admin.
          */
-        get: operations["rubrics_retrieve"];
+        get: operations["api_rubrics_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1211,7 +1271,7 @@ export interface paths {
          *     row 7 — "Read & Save Study Documents"). Write (create/update/destroy) is
          *     Admin-only (RBAC row 6 — "Manage Official Study Materials Library").
          */
-        get: operations["study_materials_list"];
+        get: operations["api_study_materials_list"];
         put?: never;
         /**
          * @description Official study-documents library.
@@ -1220,7 +1280,7 @@ export interface paths {
          *     row 7 — "Read & Save Study Documents"). Write (create/update/destroy) is
          *     Admin-only (RBAC row 6 — "Manage Official Study Materials Library").
          */
-        post: operations["study_materials_create"];
+        post: operations["api_study_materials_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1241,7 +1301,7 @@ export interface paths {
          *     row 7 — "Read & Save Study Documents"). Write (create/update/destroy) is
          *     Admin-only (RBAC row 6 — "Manage Official Study Materials Library").
          */
-        get: operations["study_materials_retrieve"];
+        get: operations["api_study_materials_retrieve"];
         /**
          * @description Official study-documents library.
          *
@@ -1249,7 +1309,7 @@ export interface paths {
          *     row 7 — "Read & Save Study Documents"). Write (create/update/destroy) is
          *     Admin-only (RBAC row 6 — "Manage Official Study Materials Library").
          */
-        put: operations["study_materials_update"];
+        put: operations["api_study_materials_update"];
         post?: never;
         /**
          * @description Official study-documents library.
@@ -1258,7 +1318,7 @@ export interface paths {
          *     row 7 — "Read & Save Study Documents"). Write (create/update/destroy) is
          *     Admin-only (RBAC row 6 — "Manage Official Study Materials Library").
          */
-        delete: operations["study_materials_destroy"];
+        delete: operations["api_study_materials_destroy"];
         options?: never;
         head?: never;
         /**
@@ -1268,7 +1328,7 @@ export interface paths {
          *     row 7 — "Read & Save Study Documents"). Write (create/update/destroy) is
          *     Admin-only (RBAC row 6 — "Manage Official Study Materials Library").
          */
-        patch: operations["study_materials_partial_update"];
+        patch: operations["api_study_materials_partial_update"];
         trace?: never;
     };
     "/api/submissions/": {
@@ -1280,7 +1340,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["submissions_create"];
+        post: operations["api_submissions_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1302,7 +1362,51 @@ export interface paths {
          *     active backend SYNCHRONOUSLY (MVP) and writes an is_ai_generated Feedback
          *     row (reviewer=None). Structured to move to an async worker later.
          */
-        post: operations["submissions_ai_evaluate_create"];
+        post: operations["api_submissions_ai_evaluate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/submissions/{id}/ai-explain/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * AI explanation of the mistakes in a submission
+         * @description GET returns the newest stored explanation (404 if none yet). POST generates a fresh one with the AI backend and stores it. Audience: the student who owns the submission, the class teacher, a reviewing teacher, the exercise owner, or an admin. Writing and receptive (reading/listening/quiz) submissions only.
+         */
+        get: operations["api_submissions_ai_explain_retrieve"];
+        put?: never;
+        /**
+         * AI explanation of the mistakes in a submission
+         * @description GET returns the newest stored explanation (404 if none yet). POST generates a fresh one with the AI backend and stores it. Audience: the student who owns the submission, the class teacher, a reviewing teacher, the exercise owner, or an admin. Writing and receptive (reading/listening/quiz) submissions only.
+         */
+        post: operations["api_submissions_ai_explain_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/submissions/{id}/ai-review-feedback/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * AI review of a teacher's (draft) feedback with recommendations
+         * @description Teacher/Admin sends the feedback they are about to post (score, comments, optional rubric cells). The AI reviews the FEEDBACK — specificity, tone, actionability, accuracy, coverage, score alignment — and returns strengths, recommendations and a suggested rewrite. Nothing is persisted; the teacher decides.
+         */
+        post: operations["api_submissions_ai_review_feedback_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1320,7 +1424,7 @@ export interface paths {
          * List inline annotations on a writing submission
          * @description Same read audience as feedback (can_view_submission_feedback): owner student / class teacher / a teacher who reviewed it / admin. Ordered by start_offset.
          */
-        get: operations["submissions_annotations_list"];
+        get: operations["api_submissions_annotations_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1337,7 +1441,7 @@ export interface paths {
             cookie?: never;
         };
         /** List feedback on a submission (owner / reviewer / class teacher / admin) */
-        get: operations["submissions_feedback_list"];
+        get: operations["api_submissions_feedback_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1361,7 +1465,7 @@ export interface paths {
          *     feedback via the mock backend. Creates a Submission (assignment=None),
          *     derives submission_type from the exercise, then evaluates it.
          */
-        post: operations["submissions_ai_practice_create"];
+        post: operations["api_submissions_ai_practice_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1379,7 +1483,7 @@ export interface paths {
          * Teacher inbox: submissions across the teacher's own exercises
          * @description Aggregates submissions for every exercise the requesting teacher owns (Exercise.created_by, with module.created_by fallback), including self-practice submissions where assignment is null. Admins see all submissions. Optional filters: status, class_id, exercise_id.
          */
-        get: operations["submissions_inbox_list"];
+        get: operations["api_submissions_inbox_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1396,7 +1500,7 @@ export interface paths {
             cookie?: never;
         };
         /** List the current student's own submissions */
-        get: operations["submissions_me_list"];
+        get: operations["api_submissions_me_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1413,9 +1517,9 @@ export interface paths {
             cookie?: never;
         };
         /** List users (admin) — filterable by role/status/search */
-        get: operations["users_list"];
+        get: operations["api_users_list"];
         put?: never;
-        post: operations["users_create"];
+        post: operations["api_users_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1429,13 +1533,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["users_retrieve"];
-        put: operations["users_update"];
+        get: operations["api_users_retrieve"];
+        put: operations["api_users_update"];
         post?: never;
-        delete: operations["users_destroy"];
+        delete: operations["api_users_destroy"];
         options?: never;
         head?: never;
-        patch: operations["users_partial_update"];
+        patch: operations["api_users_partial_update"];
         trace?: never;
     };
     "/api/users/me/": {
@@ -1446,15 +1550,46 @@ export interface paths {
             cookie?: never;
         };
         /** Get or update the current user's own profile */
-        get: operations["users_me_retrieve"];
+        get: operations["api_users_me_retrieve"];
         /** Get or update the current user's own profile */
-        put: operations["users_me_update"];
+        put: operations["api_users_me_update"];
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** Get or update the current user's own profile */
-        patch: operations["users_me_partial_update"];
+        patch: operations["api_users_me_partial_update"];
+        trace?: never;
+    };
+    "/health/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Liveness probe (anonymous): process up + database reachable
+         * @description Unauthenticated liveness/readiness probe for load balancers and uptime
+         *     monitors.
+         *
+         *     Distinct from :class:`AdminHealthView`, which is admin-only and reports
+         *     entity counts. This one is anonymous, so it deliberately exposes nothing
+         *     beyond whether the process can reach its database — and it *does* reach the
+         *     database, because a probe that only proves the web worker is up will report
+         *     green through an entire database outage.
+         *
+         *     200 when healthy, 503 when not, so an orchestrator can act on the status
+         *     code alone. `SECURE_REDIRECT_EXEMPT` keeps it reachable over plain HTTP on
+         *     the private interface.
+         */
+        get: operations["health_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
@@ -1477,6 +1612,42 @@ export interface components {
          * @enum {string}
          */
         AggregationEnum: "mean_down_half" | "mean_nearest_half" | "mean" | "sum";
+        /**
+         * @description * `pending` - Pending
+         *     * `running` - Running
+         *     * `done` - Done
+         *     * `failed` - Failed
+         * @enum {string}
+         */
+        AiGradingStatusEnum: "pending" | "running" | "done" | "failed";
+        /**
+         * @description A stored coaching result. ``payload`` is MistakeExplanation-shaped for
+         *     kind=mistake_explanation (the only kind persisted today).
+         */
+        AiInsight: {
+            readonly id: number;
+            readonly submission_id: number;
+            readonly kind: components["schemas"]["AiInsightKindEnum"];
+            readonly payload: components["schemas"]["MistakeExplanation"];
+            readonly engine: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `mistake_explanation` - Mistake explanation
+         *     * `feedback_review` - Feedback review
+         * @enum {string}
+         */
+        AiInsightKindEnum: "mistake_explanation" | "feedback_review";
+        AiMistake: {
+            question_id?: number | null;
+            location: string;
+            student_answer: string;
+            correction: string;
+            category: string;
+            explanation: string;
+            tip: string;
+        };
         AiModel: {
             readonly id: number;
             model_name: string;
@@ -1508,6 +1679,11 @@ export interface components {
             submission: components["schemas"]["Submission"];
             feedback: components["schemas"]["Feedback"];
         };
+        AiRecommendation: {
+            area: string;
+            issue: string;
+            suggestion: string;
+        };
         Assignment: {
             readonly id: number;
             readonly class_id: number;
@@ -1532,6 +1708,7 @@ export interface components {
         AttemptStatusEnum: "in_progress" | "completed" | "abandoned";
         AudioUploadResponse: {
             url: string;
+            path: string;
         };
         /**
          * @description * `band_4_5` - Band 4–5
@@ -1577,6 +1754,13 @@ export interface components {
         };
         CriterionScore: {
             readonly id: number;
+            criterion_id: number;
+            /** Format: decimal */
+            score: string;
+            note?: string | null;
+        };
+        /** @description A rubric cell in a *draft* grade (nothing is written). */
+        CriterionScoreDraftRequest: {
             criterion_id: number;
             /** Format: decimal */
             score: string;
@@ -1719,6 +1903,39 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        ExerciseFacets: {
+            total: number;
+            bands: {
+                [key: string]: number;
+            };
+            topics: {
+                [key: string]: number;
+            };
+            types: {
+                [key: string]: number;
+            };
+        };
+        /**
+         * @description Catalog row for the browse-by-topic/band list.
+         *
+         *     Deliberately omits `questions`: QuestionOptionSerializer exposes
+         *     `is_correct`, so embedding them here would hand every student the answer
+         *     key for the whole catalog in one request. Prompt/passage bodies are left
+         *     out too — they belong on the detail endpoint, not in a long list.
+         */
+        ExerciseList: {
+            readonly id: number;
+            readonly module_id: number;
+            readonly module_title: string;
+            readonly title: string;
+            readonly exercise_type: components["schemas"]["SkillTypeEnum"];
+            readonly band: (components["schemas"]["BandEnum"] | components["schemas"]["NullEnum"]) | null;
+            readonly topic: (components["schemas"]["TopicEnum"] | components["schemas"]["NullEnum"]) | null;
+            /** @default 0 */
+            readonly question_count: number;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         ExerciseRequest: {
             module_id?: number | null;
             title: string;
@@ -1751,6 +1968,24 @@ export interface components {
             comments?: string | null;
             criterion_scores?: components["schemas"]["CriterionScoreRequest"][];
         };
+        /** @description Response of POST /submissions/{id}/ai-review-feedback/ (not persisted). */
+        FeedbackReview: {
+            summary: string;
+            rating: number;
+            strengths: string[];
+            recommendations: components["schemas"]["AiRecommendation"][];
+            score_alignment: string;
+            suggested_comment: string;
+            engine: string;
+        };
+        /** @description Teacher's draft feedback to be reviewed by the AI before (or after) posting. */
+        FeedbackReviewRequestRequest: {
+            /** Format: decimal */
+            score?: string | null;
+            /** @default  */
+            comments: string;
+            criterion_scores?: components["schemas"]["CriterionScoreDraftRequest"][];
+        };
         /** @description System health snapshot (read-only) — see AdminHealthView. */
         Health: {
             status: string;
@@ -1762,6 +1997,13 @@ export interface components {
             };
             /** Format: date-time */
             server_time: string;
+        };
+        /** @description Anonymous liveness probe payload — see HealthCheckView. */
+        HealthCheck: {
+            status: string;
+            database: string;
+            /** Format: double */
+            db_latency_ms: number;
         };
         /**
          * @description * `free` - All parts available at once
@@ -1818,6 +2060,11 @@ export interface components {
             readonly class_name: string;
             title: string;
             readonly status: components["schemas"]["MeetingStatusEnum"];
+            /** Format: date-time */
+            scheduled_at?: string | null;
+            /** Format: date-time */
+            readonly started_at: string | null;
+            readonly duration_seconds: number | null;
             readonly created_by: number;
             readonly created_by_name: string;
             /** Format: date-time */
@@ -1828,13 +2075,23 @@ export interface components {
         MeetingRequest: {
             class_id: number;
             title: string;
+            /** Format: date-time */
+            scheduled_at?: string | null;
         };
         /**
-         * @description * `active` - Active
+         * @description * `scheduled` - Scheduled
+         *     * `active` - Active
          *     * `ended` - Ended
          * @enum {string}
          */
-        MeetingStatusEnum: "active" | "ended";
+        MeetingStatusEnum: "scheduled" | "active" | "ended";
+        MistakeExplanation: {
+            summary: string;
+            mistakes: components["schemas"]["AiMistake"][];
+            strengths: string[];
+            practice_suggestions: string[];
+            engine: string;
+        };
         /**
          * @description One whole mock test as a self-contained JSON document.
          *
@@ -2107,6 +2364,24 @@ export interface components {
             order?: number;
             max_words?: number | null;
         };
+        /**
+         * @description One answered question of a Listening/Reading task in the score report:
+         *     the key, what the student gave, and — once the AI has looked at it — why a
+         *     wrong answer is wrong. Only ever built for a *completed* section, so
+         *     exposing the key here is safe.
+         */
+        QuestionReview: {
+            question_id: number;
+            number: number;
+            question: string;
+            options: string[];
+            correct: string[];
+            student_answer: string | null;
+            is_correct: boolean | null;
+            explanation: string | null;
+            tip: string | null;
+            category: string | null;
+        };
         RegisterRequest: {
             /** Format: email */
             email: string;
@@ -2121,6 +2396,28 @@ export interface components {
          * @enum {string}
          */
         RegisterRoleEnum: "student" | "teacher";
+        /**
+         * @description Task-level part of a stored mistake explanation (the per-question
+         *     mistakes are folded into ``QuestionReviewSerializer`` rows).
+         */
+        ReportExplanation: {
+            summary: string;
+            strengths: string[];
+            practice_suggestions: string[];
+            engine: string;
+            /** Format: date-time */
+            created_at: string;
+        };
+        /** @description Newest feedback on a Writing/Speaking task (AI or teacher). */
+        ReportFeedback: {
+            id: number;
+            /** Format: decimal */
+            score: string | null;
+            comments: string | null;
+            is_ai_generated: boolean;
+            /** Format: date-time */
+            created_at: string;
+        };
         RubricBandDescriptor: {
             readonly id: number;
             /** Format: decimal */
@@ -2232,6 +2529,9 @@ export interface components {
             converted_score: string | null;
             pending_grading: boolean;
             submission_ids: number[];
+            ai_status: components["schemas"]["AiGradingStatusEnum"];
+            ai_error: string;
+            submissions: components["schemas"]["SubmissionReview"][];
         };
         /**
          * @description * `not_started` - Not started
@@ -2333,6 +2633,7 @@ export interface components {
             readonly student_id: number;
             /** Format: date-time */
             readonly submitted_at: string;
+            readonly audio_url: string | null;
         };
         /**
          * @description Read-only inbox row: existing submission fields + grading-state
@@ -2354,6 +2655,7 @@ export interface components {
             readonly student_id: number;
             /** Format: date-time */
             readonly submitted_at: string;
+            readonly audio_url: string | null;
             readonly is_graded: string;
             readonly grading_source: string;
             readonly latest_score: string;
@@ -2367,6 +2669,25 @@ export interface components {
             audio_recording_url?: string | null;
             answers?: unknown;
         };
+        /** @description One task of a completed section, with whatever the AI produced for it. */
+        SubmissionReview: {
+            submission_id: number;
+            exercise_id: number;
+            exercise_title: string;
+            exercise_type: string;
+            ai_status: components["schemas"]["SubmissionReviewAiStatusEnum"];
+            questions: components["schemas"]["QuestionReview"][];
+            explanation: components["schemas"]["ReportExplanation"] | null;
+            feedback: components["schemas"]["ReportFeedback"] | null;
+            writing_text: string | null;
+            audio_recording_url: string | null;
+        };
+        /**
+         * @description * `pending` - Pending
+         *     * `done` - Done
+         * @enum {string}
+         */
+        SubmissionReviewAiStatusEnum: "pending" | "done";
         /**
          * @description Attempt detail — the single source the runner resumes from.
          *     ``server_time`` lets the client correct its own clock skew instead of
@@ -2641,7 +2962,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    admin_activity_list: {
+    api_admin_activity_list: {
         parameters: {
             query?: {
                 /** @description Max rows to return (default 50, max 200) */
@@ -2663,7 +2984,7 @@ export interface operations {
             };
         };
     };
-    admin_health_retrieve: {
+    api_admin_health_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -2682,7 +3003,7 @@ export interface operations {
             };
         };
     };
-    ai_models_list: {
+    api_ai_models_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -2701,7 +3022,7 @@ export interface operations {
             };
         };
     };
-    ai_models_create: {
+    api_ai_models_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -2726,7 +3047,7 @@ export interface operations {
             };
         };
     };
-    ai_models_retrieve: {
+    api_ai_models_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -2748,7 +3069,7 @@ export interface operations {
             };
         };
     };
-    ai_models_update: {
+    api_ai_models_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -2776,7 +3097,7 @@ export interface operations {
             };
         };
     };
-    ai_models_destroy: {
+    api_ai_models_destroy: {
         parameters: {
             query?: never;
             header?: never;
@@ -2797,7 +3118,7 @@ export interface operations {
             };
         };
     };
-    ai_models_partial_update: {
+    api_ai_models_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -2825,7 +3146,7 @@ export interface operations {
             };
         };
     };
-    annotations_create: {
+    api_annotations_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -2850,7 +3171,7 @@ export interface operations {
             };
         };
     };
-    annotations_update: {
+    api_annotations_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -2878,7 +3199,7 @@ export interface operations {
             };
         };
     };
-    annotations_destroy: {
+    api_annotations_destroy: {
         parameters: {
             query?: never;
             header?: never;
@@ -2899,7 +3220,7 @@ export interface operations {
             };
         };
     };
-    annotations_partial_update: {
+    api_annotations_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -2927,7 +3248,7 @@ export interface operations {
             };
         };
     };
-    annotations_acknowledge_create: {
+    api_annotations_acknowledge_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -2949,7 +3270,7 @@ export interface operations {
             };
         };
     };
-    auth_login_create: {
+    api_auth_login_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -2981,7 +3302,7 @@ export interface operations {
             };
         };
     };
-    auth_register_create: {
+    api_auth_register_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3006,7 +3327,7 @@ export interface operations {
             };
         };
     };
-    auth_token_create: {
+    api_auth_token_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3031,7 +3352,7 @@ export interface operations {
             };
         };
     };
-    auth_token_refresh_create: {
+    api_auth_token_refresh_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3056,7 +3377,7 @@ export interface operations {
             };
         };
     };
-    classes_list: {
+    api_classes_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -3075,7 +3396,7 @@ export interface operations {
             };
         };
     };
-    classes_create: {
+    api_classes_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3100,7 +3421,7 @@ export interface operations {
             };
         };
     };
-    classes_retrieve: {
+    api_classes_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -3122,7 +3443,7 @@ export interface operations {
             };
         };
     };
-    classes_update: {
+    api_classes_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -3150,7 +3471,7 @@ export interface operations {
             };
         };
     };
-    classes_destroy: {
+    api_classes_destroy: {
         parameters: {
             query?: never;
             header?: never;
@@ -3171,7 +3492,7 @@ export interface operations {
             };
         };
     };
-    classes_partial_update: {
+    api_classes_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -3199,7 +3520,7 @@ export interface operations {
             };
         };
     };
-    classes_assignments_list: {
+    api_classes_assignments_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -3229,7 +3550,7 @@ export interface operations {
             };
         };
     };
-    classes_assignments_create: {
+    api_classes_assignments_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3265,7 +3586,7 @@ export interface operations {
             };
         };
     };
-    classes_lesson_plans_list: {
+    api_classes_lesson_plans_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -3295,7 +3616,7 @@ export interface operations {
             };
         };
     };
-    classes_lesson_plans_create: {
+    api_classes_lesson_plans_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3331,7 +3652,7 @@ export interface operations {
             };
         };
     };
-    classes_students_list: {
+    api_classes_students_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -3361,7 +3682,7 @@ export interface operations {
             };
         };
     };
-    classes_students_create: {
+    api_classes_students_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3397,7 +3718,7 @@ export interface operations {
             };
         };
     };
-    classes_students_destroy: {
+    api_classes_students_destroy: {
         parameters: {
             query?: never;
             header?: never;
@@ -3420,7 +3741,7 @@ export interface operations {
             };
         };
     };
-    dashboard_retrieve: {
+    api_dashboard_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -3439,7 +3760,37 @@ export interface operations {
             };
         };
     };
-    exercises_retrieve: {
+    api_exercises_list: {
+        parameters: {
+            query?: {
+                /** @description Target band range, e.g. band_5_6 */
+                band?: "band_4_5" | "band_5_6" | "band_6_7" | "band_7_8" | "band_8_9";
+                /** @description Restrict to one learning module */
+                module_id?: number;
+                /** @description Case-insensitive search over title and prompt */
+                q?: string;
+                /** @description Topic, e.g. life or sports */
+                topic?: "culture" | "education" | "environment" | "health" | "life" | "sports" | "technology" | "travel" | "work";
+                /** @description Exercise type */
+                type?: "listening" | "quiz" | "reading" | "speaking" | "writing";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseList"][];
+                };
+            };
+        };
+    };
+    api_exercises_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -3461,7 +3812,7 @@ export interface operations {
             };
         };
     };
-    exercises_destroy: {
+    api_exercises_destroy: {
         parameters: {
             query?: never;
             header?: never;
@@ -3482,7 +3833,7 @@ export interface operations {
             };
         };
     };
-    exercises_rubric_retrieve: {
+    api_exercises_rubric_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -3504,7 +3855,7 @@ export interface operations {
             };
         };
     };
-    exercises_submissions_list: {
+    api_exercises_submissions_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -3526,7 +3877,32 @@ export interface operations {
             };
         };
     };
-    feedback_create: {
+    api_exercises_facets_retrieve: {
+        parameters: {
+            query?: {
+                band?: string;
+                module_id?: number;
+                q?: string;
+                topic?: string;
+                type?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseFacets"];
+                };
+            };
+        };
+    };
+    api_feedback_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3551,7 +3927,7 @@ export interface operations {
             };
         };
     };
-    media_audio_create: {
+    api_media_audio_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3586,7 +3962,7 @@ export interface operations {
             };
         };
     };
-    meetings_list: {
+    api_meetings_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -3605,7 +3981,7 @@ export interface operations {
             };
         };
     };
-    meetings_create: {
+    api_meetings_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3630,7 +4006,7 @@ export interface operations {
             };
         };
     };
-    meetings_retrieve: {
+    api_meetings_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -3652,7 +4028,7 @@ export interface operations {
             };
         };
     };
-    meetings_end_create: {
+    api_meetings_end_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3674,7 +4050,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_attempts_retrieve: {
+    api_mock_tests_attempts_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -3696,7 +4072,37 @@ export interface operations {
             };
         };
     };
-    mock_tests_attempts_report_retrieve: {
+    api_mock_tests_attempts_ai_grade_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this test attempt. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestAttemptReport"];
+                };
+            };
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestAttemptReport"];
+                };
+            };
+        };
+    };
+    api_mock_tests_attempts_report_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -3718,7 +4124,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_attempts_sections_advance_create: {
+    api_mock_tests_attempts_sections_advance_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3747,7 +4153,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_attempts_sections_answers_partial_update: {
+    api_mock_tests_attempts_sections_answers_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -3783,7 +4189,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_attempts_sections_start_create: {
+    api_mock_tests_attempts_sections_start_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3806,7 +4212,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_attempts_sections_submit_create: {
+    api_mock_tests_attempts_sections_submit_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3835,7 +4241,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_attempts_me_list: {
+    api_mock_tests_attempts_me_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -3854,7 +4260,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_formats_list: {
+    api_mock_tests_formats_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -3873,7 +4279,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_formats_create: {
+    api_mock_tests_formats_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -3898,7 +4304,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_formats_retrieve: {
+    api_mock_tests_formats_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -3920,7 +4326,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_formats_update: {
+    api_mock_tests_formats_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -3948,7 +4354,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_formats_destroy: {
+    api_mock_tests_formats_destroy: {
         parameters: {
             query?: never;
             header?: never;
@@ -3969,7 +4375,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_formats_partial_update: {
+    api_mock_tests_formats_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -3997,7 +4403,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_formats_conversions_list: {
+    api_mock_tests_formats_conversions_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -4026,7 +4432,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_formats_conversions_update: {
+    api_mock_tests_formats_conversions_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -4061,7 +4467,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_templates_list: {
+    api_mock_tests_templates_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -4080,7 +4486,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_templates_create: {
+    api_mock_tests_templates_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -4105,7 +4511,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_templates_retrieve: {
+    api_mock_tests_templates_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -4127,7 +4533,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_templates_update: {
+    api_mock_tests_templates_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -4155,7 +4561,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_templates_destroy: {
+    api_mock_tests_templates_destroy: {
         parameters: {
             query?: never;
             header?: never;
@@ -4176,7 +4582,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_templates_partial_update: {
+    api_mock_tests_templates_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -4204,7 +4610,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_templates_attempts_create: {
+    api_mock_tests_templates_attempts_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -4239,7 +4645,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_templates_duplicate_create: {
+    api_mock_tests_templates_duplicate_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -4261,7 +4667,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_templates_export_retrieve: {
+    api_mock_tests_templates_export_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -4283,7 +4689,7 @@ export interface operations {
             };
         };
     };
-    mock_tests_templates_import_create: {
+    api_mock_tests_templates_import_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -4308,7 +4714,7 @@ export interface operations {
             };
         };
     };
-    modules_list: {
+    api_modules_list: {
         parameters: {
             query?: {
                 /** @description Filter by target band range (e.g. band_5_6) */
@@ -4332,7 +4738,7 @@ export interface operations {
             };
         };
     };
-    modules_create: {
+    api_modules_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -4357,7 +4763,7 @@ export interface operations {
             };
         };
     };
-    modules_retrieve: {
+    api_modules_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -4379,7 +4785,7 @@ export interface operations {
             };
         };
     };
-    modules_update: {
+    api_modules_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -4407,7 +4813,7 @@ export interface operations {
             };
         };
     };
-    modules_destroy: {
+    api_modules_destroy: {
         parameters: {
             query?: never;
             header?: never;
@@ -4428,7 +4834,7 @@ export interface operations {
             };
         };
     };
-    modules_partial_update: {
+    api_modules_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -4456,7 +4862,7 @@ export interface operations {
             };
         };
     };
-    modules_exercises_list: {
+    api_modules_exercises_list: {
         parameters: {
             query?: {
                 /** @description Filter by target band range (GET only) */
@@ -4491,7 +4897,7 @@ export interface operations {
             };
         };
     };
-    modules_exercises_create: {
+    api_modules_exercises_create: {
         parameters: {
             query?: {
                 /** @description Filter by target band range (GET only) */
@@ -4532,7 +4938,7 @@ export interface operations {
             };
         };
     };
-    progress_create: {
+    api_progress_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -4557,7 +4963,7 @@ export interface operations {
             };
         };
     };
-    progress_me_list: {
+    api_progress_me_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -4576,7 +4982,7 @@ export interface operations {
             };
         };
     };
-    pronunciation_attempts_me_list: {
+    api_pronunciation_attempts_me_list: {
         parameters: {
             query?: {
                 /** @description Filter to a single drill */
@@ -4598,7 +5004,7 @@ export interface operations {
             };
         };
     };
-    pronunciation_drills_list: {
+    api_pronunciation_drills_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -4617,7 +5023,7 @@ export interface operations {
             };
         };
     };
-    pronunciation_drills_create: {
+    api_pronunciation_drills_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -4642,7 +5048,7 @@ export interface operations {
             };
         };
     };
-    pronunciation_drills_retrieve: {
+    api_pronunciation_drills_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -4664,7 +5070,7 @@ export interface operations {
             };
         };
     };
-    pronunciation_drills_update: {
+    api_pronunciation_drills_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -4692,7 +5098,7 @@ export interface operations {
             };
         };
     };
-    pronunciation_drills_destroy: {
+    api_pronunciation_drills_destroy: {
         parameters: {
             query?: never;
             header?: never;
@@ -4713,7 +5119,7 @@ export interface operations {
             };
         };
     };
-    pronunciation_drills_partial_update: {
+    api_pronunciation_drills_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -4741,7 +5147,7 @@ export interface operations {
             };
         };
     };
-    pronunciation_drills_attempts_list: {
+    api_pronunciation_drills_attempts_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -4771,7 +5177,7 @@ export interface operations {
             };
         };
     };
-    pronunciation_drills_attempts_create: {
+    api_pronunciation_drills_attempts_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -4805,7 +5211,7 @@ export interface operations {
             };
         };
     };
-    reports_grades_retrieve: {
+    api_reports_grades_retrieve: {
         parameters: {
             query: {
                 /** @description Class to report on. Teachers may only export their own. */
@@ -4850,7 +5256,7 @@ export interface operations {
             };
         };
     };
-    rubrics_list: {
+    api_rubrics_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -4869,7 +5275,7 @@ export interface operations {
             };
         };
     };
-    rubrics_retrieve: {
+    api_rubrics_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -4891,7 +5297,7 @@ export interface operations {
             };
         };
     };
-    study_materials_list: {
+    api_study_materials_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -4910,7 +5316,7 @@ export interface operations {
             };
         };
     };
-    study_materials_create: {
+    api_study_materials_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -4935,7 +5341,7 @@ export interface operations {
             };
         };
     };
-    study_materials_retrieve: {
+    api_study_materials_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -4957,7 +5363,7 @@ export interface operations {
             };
         };
     };
-    study_materials_update: {
+    api_study_materials_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -4985,7 +5391,7 @@ export interface operations {
             };
         };
     };
-    study_materials_destroy: {
+    api_study_materials_destroy: {
         parameters: {
             query?: never;
             header?: never;
@@ -5006,7 +5412,7 @@ export interface operations {
             };
         };
     };
-    study_materials_partial_update: {
+    api_study_materials_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -5034,7 +5440,7 @@ export interface operations {
             };
         };
     };
-    submissions_create: {
+    api_submissions_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -5059,7 +5465,7 @@ export interface operations {
             };
         };
     };
-    submissions_ai_evaluate_create: {
+    api_submissions_ai_evaluate_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -5081,7 +5487,165 @@ export interface operations {
             };
         };
     };
-    submissions_annotations_list: {
+    api_submissions_ai_explain_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this submission. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiInsight"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiInsight"];
+                };
+            };
+            /** @description Unsupported submission or AI backend not configured */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not permitted */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No explanation generated yet (GET) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description AI service unavailable */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_submissions_ai_explain_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this submission. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiInsight"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiInsight"];
+                };
+            };
+            /** @description Unsupported submission or AI backend not configured */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not permitted */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No explanation generated yet (GET) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description AI service unavailable */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_submissions_ai_review_feedback_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this submission. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["FeedbackReviewRequestRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["FeedbackReviewRequestRequest"];
+                "multipart/form-data": components["schemas"]["FeedbackReviewRequestRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackReview"];
+                };
+            };
+            /** @description Empty draft, or AI backend not configured */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description AI service unavailable */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_submissions_annotations_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -5110,7 +5674,7 @@ export interface operations {
             };
         };
     };
-    submissions_feedback_list: {
+    api_submissions_feedback_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -5139,7 +5703,7 @@ export interface operations {
             };
         };
     };
-    submissions_ai_practice_create: {
+    api_submissions_ai_practice_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -5164,7 +5728,7 @@ export interface operations {
             };
         };
     };
-    submissions_inbox_list: {
+    api_submissions_inbox_list: {
         parameters: {
             query?: {
                 /** @description Filter to submissions whose assignment targets this class */
@@ -5190,7 +5754,7 @@ export interface operations {
             };
         };
     };
-    submissions_me_list: {
+    api_submissions_me_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -5209,7 +5773,7 @@ export interface operations {
             };
         };
     };
-    users_list: {
+    api_users_list: {
         parameters: {
             query?: {
                 /** @description Filter by role: admin | teacher | student */
@@ -5235,7 +5799,7 @@ export interface operations {
             };
         };
     };
-    users_create: {
+    api_users_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -5260,7 +5824,7 @@ export interface operations {
             };
         };
     };
-    users_retrieve: {
+    api_users_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -5282,7 +5846,7 @@ export interface operations {
             };
         };
     };
-    users_update: {
+    api_users_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -5310,7 +5874,7 @@ export interface operations {
             };
         };
     };
-    users_destroy: {
+    api_users_destroy: {
         parameters: {
             query?: never;
             header?: never;
@@ -5331,7 +5895,7 @@ export interface operations {
             };
         };
     };
-    users_partial_update: {
+    api_users_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -5359,7 +5923,7 @@ export interface operations {
             };
         };
     };
-    users_me_retrieve: {
+    api_users_me_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -5378,7 +5942,7 @@ export interface operations {
             };
         };
     };
-    users_me_update: {
+    api_users_me_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -5403,7 +5967,7 @@ export interface operations {
             };
         };
     };
-    users_me_partial_update: {
+    api_users_me_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -5425,6 +5989,32 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["User"];
                 };
+            };
+        };
+    };
+    health_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthCheck"];
+                };
+            };
+            /** @description Database unreachable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
