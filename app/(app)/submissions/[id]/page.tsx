@@ -290,9 +290,6 @@ function TeacherGradingScreen() {
             )}
           </Card>
 
-          {(isWriting || !!submission.answers) && (
-            <MistakeExplanationCard submissionId={id} />
-          )}
         </div>
 
         {/* Right column: Annotations sidebar, Feedback history & Grading Form */}
