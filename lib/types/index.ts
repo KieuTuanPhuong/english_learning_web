@@ -80,6 +80,13 @@ export type AttemptMode = S["ModeEnum"];
 export type SectionAttempt = S["SectionAttempt"];
 export type TestAttemptReport = S["TestAttemptReport"];
 export type SectionScore = S["SectionScore"];
+// Post-test review rows inside the report (keys + AI explanations; only for
+// completed sections) and the automatic AI marking state per section.
+export type SubmissionReview = S["SubmissionReview"];
+export type QuestionReview = S["QuestionReview"];
+export type ReportExplanation = S["ReportExplanation"];
+export type ReportFeedback = S["ReportFeedback"];
+export type AiGradingStatus = S["AiGradingStatusEnum"]; // pending|running|done|failed
 export type SectionSkill = S["SkillEnum"]; // listening|reading|writing|speaking
 export type AttemptStatus = S["AttemptStatusEnum"]; // in_progress|completed|abandoned
 export type SectionStatus = S["SectionStatusEnum"]; // not_started|in_progress|completed

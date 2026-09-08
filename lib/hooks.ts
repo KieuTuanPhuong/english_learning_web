@@ -413,8 +413,22 @@ export function useTestAttemptReport(id: number) {
     queryKey: qk.testAttemptReport(id),
     queryFn: () => api.getTestAttemptReport(id),
     enabled: Number.isFinite(id),
-    // Writing/Speaking bands land whenever a teacher or the AI grades them.
-    refetchInterval: (query) => (query.state.data?.partial ? 30_000 : false),
+    // Poll briskly while the AI is marking a section in the background, and
+    // slowly while a band is still waiting on a teacher.
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (!data) return false;
+      if (data.sections.some((section) => section.ai_status === "running")) return 4_000;
+      return data.partial ? 30_000 : false;
+    },
+  });
+}
+// The response IS the fresh report, so it replaces the cached one directly.
+export function useAiGradeTestAttempt(attemptId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.aiGradeTestAttempt(attemptId),
+    onSuccess: (data) => qc.setQueryData(qk.testAttemptReport(attemptId), data),
   });
 }
 

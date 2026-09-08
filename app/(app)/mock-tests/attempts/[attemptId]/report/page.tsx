@@ -1,20 +1,55 @@
 "use client";
 // Score report. Renders partial results honestly: Listening/Reading bands are
 // there the moment the section is submitted, Writing/Speaking show "Pending
-// grading" until a teacher or the AI scores them, and the overall score only
-// appears once every section has one. Polls while `partial` is true.
+// grading" until the AI (or a teacher) scores them, and the overall score only
+// appears once every section has one.
+//
+// AI marking: the server claims every submitted section for automatic marking
+// the moment it is submitted; this page is the catch-up path. A completed
+// section still `pending` (an attempt from before auto-marking, or a server
+// that restarted mid-way) is sent to POST /ai-grade/ once on load, a `failed`
+// one gets a Retry, and the report polls while anything is `running`.
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ChevronLeft, Clock, Info } from "lucide-react";
-import { useTestAttemptReport } from "@/lib/hooks";
+import { ChevronLeft, Clock, Info, RefreshCw } from "lucide-react";
+import { useAiGradeTestAttempt, useTestAttemptReport } from "@/lib/hooks";
+import { ApiError } from "@/lib/api";
 import { dateLabel } from "@/lib/format";
-import { Badge, Card, ErrorState, PageHeader, Skeleton } from "@/components/ui";
+import { isReceptive } from "@/lib/mock-tests";
+import {
+  AiTag,
+  Badge,
+  Button,
+  Card,
+  ErrorState,
+  PageHeader,
+  Skeleton,
+  Spinner,
+} from "@/components/ui";
+import { SubmissionReviewList } from "@/components/mock-test/SectionReview";
 import type { SectionScore } from "@/lib/types";
 
 export default function TestAttemptReportPage() {
   const params = useParams<{ attemptId: string }>();
   const attemptId = Number(params.attemptId);
   const report = useTestAttemptReport(attemptId);
+  const aiGrade = useAiGradeTestAttempt(attemptId);
+  const { mutate: startAiGrading } = aiGrade;
+
+  // Catch-up: claim marking for completed sections nobody has claimed. Once
+  // per page load — the endpoint is idempotent, but firing it on every poll
+  // would hammer it while a section is legitimately still queued.
+  const autoStarted = useRef(false);
+  const needsAi =
+    report.data?.sections.some(
+      (section) => section.status === "completed" && section.ai_status === "pending",
+    ) ?? false;
+  useEffect(() => {
+    if (!needsAi || autoStarted.current) return;
+    autoStarted.current = true;
+    startAiGrading();
+  }, [needsAi, startAiGrading]);
 
   if (report.isLoading) return <Skeleton className="h-64 w-full" />;
   if (report.isError || !report.data) {
@@ -22,6 +57,13 @@ export default function TestAttemptReportPage() {
   }
 
   const data = report.data;
+  const marking =
+    aiGrade.isPending || data.sections.some((section) => section.ai_status === "running");
+  const aiError = aiGrade.isError
+    ? aiGrade.error instanceof ApiError
+      ? aiGrade.error.message
+      : "Could not start AI marking."
+    : null;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -44,15 +86,22 @@ export default function TestAttemptReportPage() {
       <OverallScoreCard
         score={data.overall_score}
         partial={data.partial}
+        marking={marking}
         format={data.format}
       />
+
+      {aiError && <p className="text-sm font-medium text-red-600">{aiError}</p>}
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-zinc-700">By section</h2>
         <ul className="space-y-2">
           {data.sections.map((section) => (
             <li key={section.section_attempt_id}>
-              <SectionScoreCard section={section} />
+              <SectionScoreCard
+                section={section}
+                retrying={aiGrade.isPending}
+                onRetry={() => startAiGrading()}
+              />
             </li>
           ))}
         </ul>
@@ -65,7 +114,8 @@ export default function TestAttemptReportPage() {
             Scores are <strong>estimates</strong>. Neither IELTS nor ETS
             publishes official raw-to-score conversion tables, so these use
             widely-cited approximations and will not match an official result
-            exactly.
+            exactly. Writing and Speaking bands come from AI marking unless a
+            teacher has graded the task.
           </span>
         </p>
       )}
@@ -76,10 +126,12 @@ export default function TestAttemptReportPage() {
 function OverallScoreCard({
   score,
   partial,
+  marking,
   format,
 }: {
   score: string | null;
   partial: boolean;
+  marking: boolean;
   format: string;
 }) {
   const isBand = format.startsWith("ielts");
@@ -90,9 +142,11 @@ function OverallScoreCard({
           {isBand ? "Overall band" : "Total score"}
         </p>
         <p className="mt-1 text-sm text-zinc-500">
-          {partial
-            ? "Waiting on Writing/Speaking grading — this updates automatically."
-            : "All sections scored."}
+          {!partial
+            ? "All sections scored."
+            : marking
+              ? "The AI is marking your sections — this updates automatically."
+              : "Waiting on Writing/Speaking grading — this updates automatically."}
         </p>
       </div>
       <div className="text-right">
@@ -106,8 +160,18 @@ function OverallScoreCard({
   );
 }
 
-function SectionScoreCard({ section }: { section: SectionScore }) {
+function SectionScoreCard({
+  section,
+  retrying,
+  onRetry,
+}: {
+  section: SectionScore;
+  retrying: boolean;
+  onRetry: () => void;
+}) {
   const notStarted = section.status === "not_started";
+  const completed = section.status === "completed";
+  const receptive = isReceptive(section.skill);
   // Only receptive sections have a raw count to draw. Writing and Speaking are
   // a band from a rubric, not a proportion, and inventing a bar for them would
   // imply a precision the mark does not have.
@@ -115,6 +179,12 @@ function SectionScoreCard({ section }: { section: SectionScore }) {
     section.raw_max != null && section.raw_max > 0 && section.raw_score != null;
   const percent = hasRawBar
     ? Math.round(((section.raw_score ?? 0) / (section.raw_max ?? 1)) * 100)
+    : 0;
+  const wrongCount = receptive
+    ? section.submissions.reduce(
+        (sum, task) => sum + task.questions.filter((q) => q.is_correct === false).length,
+        0,
+      )
     : 0;
 
   return (
@@ -164,8 +234,70 @@ function SectionScoreCard({ section }: { section: SectionScore }) {
           />
         </div>
       )}
+
+      {completed && (
+        <AiMarkingStatus section={section} retrying={retrying} onRetry={onRetry} />
+      )}
+
+      {completed && section.submissions.length > 0 && (
+        // Open by default when there is something to learn from; a perfect
+        // section or a productive task stays folded to keep the report short.
+        <details open={receptive && wrongCount > 0}>
+          <summary className="cursor-pointer select-none text-sm font-medium text-accent">
+            Review answers
+            {receptive
+              ? wrongCount > 0
+                ? ` · ${wrongCount} to fix`
+                : " · all correct"
+              : ""}
+          </summary>
+          <div className="mt-3">
+            <SubmissionReviewList submissions={section.submissions} receptive={receptive} />
+          </div>
+        </details>
+      )}
     </Card>
   );
+}
+
+function AiMarkingStatus({
+  section,
+  retrying,
+  onRetry,
+}: {
+  section: SectionScore;
+  retrying: boolean;
+  onRetry: () => void;
+}) {
+  switch (section.ai_status) {
+    case "running":
+      return (
+        <p className="inline-flex items-center gap-2 text-xs text-violet-700">
+          <Spinner className="h-3.5 w-3.5" /> The AI is marking this section…
+        </p>
+      );
+    case "failed":
+      return (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-red-200 bg-red-50/50 px-3 py-2 text-xs text-red-700">
+          <span>AI marking failed{section.ai_error ? `: ${section.ai_error}` : "."}</span>
+          <Button variant="outline" size="sm" loading={retrying} onClick={onRetry}>
+            <RefreshCw size={12} aria-hidden /> Retry
+          </Button>
+        </div>
+      );
+    case "pending":
+      return (
+        <p className="inline-flex items-center gap-2 text-xs text-zinc-500">
+          <Spinner className="h-3.5 w-3.5" /> Queuing AI marking…
+        </p>
+      );
+    default:
+      return (
+        <p className="inline-flex items-center gap-1.5 text-xs text-violet-700">
+          <AiTag /> Marked by AI
+        </p>
+      );
+  }
 }
 
 /** Decimals arrive as strings ("7.00", "495.00"). Show bands as 7.0 and scaled
