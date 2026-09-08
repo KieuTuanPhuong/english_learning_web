@@ -240,9 +240,16 @@ function SectionScoreCard({
       )}
 
       {completed && section.submissions.length > 0 && (
-        // Open by default when there is something to learn from; a perfect
-        // section or a productive task stays folded to keep the report short.
-        <details open={receptive && wrongCount > 0}>
+        // Open by default when there is something to read: wrong answers with
+        // their explanations, or feedback on a Writing/Speaking task. A perfect
+        // receptive section stays folded to keep the report short.
+        <details
+          open={
+            receptive
+              ? wrongCount > 0
+              : section.submissions.some((task) => task.feedback != null)
+          }
+        >
           <summary className="cursor-pointer select-none text-sm font-medium text-accent">
             Review answers
             {receptive

@@ -2681,6 +2681,7 @@ export interface components {
             feedback: components["schemas"]["ReportFeedback"] | null;
             writing_text: string | null;
             audio_recording_url: string | null;
+            audio_url: string | null;
         };
         /**
          * @description * `pending` - Pending
