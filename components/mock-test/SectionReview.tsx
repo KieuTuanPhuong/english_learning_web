@@ -181,8 +181,10 @@ function ProductiveTaskReview({ task }: { task: SubmissionReview }) {
           </summary>
           <p className="mt-2 whitespace-pre-wrap text-zinc-700">{task.writing_text}</p>
         </details>
-      ) : task.audio_recording_url ? (
-        <audio controls src={task.audio_recording_url} className="w-full" />
+      ) : task.audio_url || task.audio_recording_url ? (
+        // audio_url is the signed, playable link; the raw path only works for
+        // external recordings the server never stored.
+        <audio controls src={task.audio_url ?? task.audio_recording_url ?? undefined} className="w-full" />
       ) : (
         <p className="italic text-zinc-400">No response submitted.</p>
       )}
